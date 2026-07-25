@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ALU3D · Editor</title>
+    <!-- Estilos CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Importar Three.js y sus módulos desde CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Panel de control lateral -->
+    <div id="panel">
+        <h2>📐 ALU3D · Editor</h2>
+        <div id="element-list">
+            <h3>Elementos</h3>
+            <ul id="items-container"></ul>
+            <button id="add-btn">+ Añadir Elemento</button>
+        </div>
+        <div id="editor-section">
+            <h3>Configurar</h3>
+            <div id="editor-fields">
+                <label>Nombre: <input type="text" id="edit-name" placeholder="Nombre del elemento"></label>
+                <label>Tipo: 
+                    <select id="edit-type">
+                        <option value="box">Caja</option>
+                        <option value="sphere">Esfera</option>
+                        <option value="cylinder">Cilindro</option>
+                    </select>
+                </label>
+                <label>Color: <input type="color" id="edit-color" value="#ff5722"></label>
+                <label>Ancho (X): <input type="range" id="edit-width" min="0.5" max="3" step="0.1" value="1.5"></label>
+                <label>Alto (Y): <input type="range" id="edit-height" min="0.5" max="3" step="0.1" value="1.5"></label>
+                <label>Profundo (Z): <input type="range" id="edit-depth" min="0.5" max="3" step="0.1" value="1.5"></label>
+            </div>
+            <div id="editor-actions">
+                <button id="save-btn">💾 Guardar Cambios</button>
+                <button id="delete-btn" style="background:#c0392b;">🗑️ Eliminar</button>
+            </div>
+        </div>
+        <div id="info-status">
+            <span id="fps-counter">60 FPS</span>
+            <span>🖱️ Arrastra para rotar · Scroll zoom</span>
+        </div>
+    </div>
+
+    <!-- Contenedor para el visor 3D -->
+    <div id="canvas-container"></div>
+
+    <!-- Lógica JavaScript -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
