@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ALUCALC-3D Professional Engine v2.0</title>
+<style>
+  :root {
+    --bg: #f7f8fb;
+    --surface: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #ff6b35;
+    --code-bg: #0f172a;
+    --code-text: #e2e8f0;
+    --chip-bg: #eef2ff;
+    --chip-text: #1e3a8a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-size: 2.2rem;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 1rem;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-size: 1.35rem;
+    margin: 0 0 10px;
+  }
+  h3 {
+    font-size: 1.05rem;
+    margin: 24px 0 8px;
+    color: #111827;
+  }
+  h3:first-of-type { margin-top: 8px; }
+  p, li {
+    color: #374151;
+  }
+  ul { padding-left: 22px; }
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.95rem;
+  }
+  .code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 14px 16px;
+    border-radius: 12px;
+    overflow: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.95rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+  }
+  th { background: #f3f4f6; }
+  .diagram {
+    background: #0b1220;
+    color: #cbd5e1;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9rem;
+    overflow: auto;
+    white-space: pre;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .grid-2 > * { min-width: 0; }
+  .hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+  @media (min-width: 760px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 2.6rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="subtitle"><span class="badge">v2.0</span><span class="badge">Propuesta</span></div>
+    <h1>ALUCALC-3D Professional Engine</h1>
+    <div class="subtitle">Diseño, cálculo, visualización y documentación para ventanas y puertas de aluminio</div>
+  </header>
+
+  <section>
+    <h2>1. Visión General</h2>
+    <p><strong>Nombre de la actualización:</strong> ALUCALC-3D Professional Engine v2.0</p>
+    <p><strong>Objetivo:</strong> Transformar ALUCALC-3D de un visor web básico en una plataforma profesional de diseño, cálculo, visualización y preparación para fabricación de ventanas y puertas de aluminio, utilizando datos reales de la línea Euroalum / Indalum.</p>
+    <p><strong>Resultado esperado:</strong></p>
+    <ul>
+      <li>Seleccionar perfiles reales del catálogo.</li>
+      <li>Calcular automáticamente cortes y dimensiones.</li>
+      <li>Ensamblar un modelo 3D verificable.</li>
+      <li>Generar documentación lista para producción.</li>
+      <li>Escalar fácilmente a nuevas series y configuraciones.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. Alcance Funcional</h2>
+
+    <h3>✅ Incluido en esta actualización</h3>
+    <ul>
+      <li>Catálogo técnico real</li>
+      <li>Series Euroalum / Indalum: 2500, 2800, 3800, 3900, 4000, 4500</li>
+      <li>Perfiles estructurales, junquillos, mosquiteros, adaptadores de traslape</li>
+      <li>Herrajes y accesorios básicos</li>
+    </ul>
+
+    <h3>🧮 Motor de cálculo</h3>
+    <ul>
+      <li>Evaluación de fórmulas paramétricas</li>
+      <li>Cálculo de longitudes de corte</li>
+      <li>Cantidad de piezas</li>
+      <li>Tipo de corte: 45° / 90°</li>
+      <li>Cálculo de dimensiones de vidrio</li>
+    </ul>
+
+    <h3>🧊 Visualización 3D</h3>
+    <ul>
+      <li>Ensamble paramétrico</li>
+      <li>Cambio dinámico de dimensiones</li>
+      <li>Compatibilidad con mosquiteros y jaladeras</li>
+      <li>Materiales básicos de aluminio y vidrio</li>
+    </ul>
+
+    <h3>📄 Generación de documentos</h3>
+    <ul>
+      <li>Lista de cortes</li>
+      <li>Croquis técnico 2D</li>
+      <li>Cotización preliminar</li>
+    </ul>
+
+    <h3>🧩 Arquitectura extensible</h3>
+    <ul>
+      <li>Catálogos desacoplados del motor</li>
+      <li>Layouts reutilizables</li>
+      <li>Reglas por serie</li>
+    </ul>
+  </section>
+
+  <section>
+     <h2>3. Objetivos de Negocio</h2>
+    <h3>Problemas actuales</h3>
+    <ul>
+      <li>Uso de medidas genéricas.</li>
+      <li>Cálculos manuales propensos a error.</li>
+      <li>No existe relación entre el modelo 3D y la fabricación real.</li>
+      <li>Difícil agregar nuevas series.</li>
+    </ul>
+
+    <h3>Beneficios esperados</h3>
+    <ul>
+      <li>Reducción de errores de fabricación.</li>
+      <li>Menor desperdicio de aluminio y vidrio.</li>
+      <li>Cotizaciones más rápidas.</li>
+      <li>Visualización previa para el cliente.</li>
+      <li>Escalabilidad del sistema.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. Arquitectura Propuesta</h2>
+    <div class="diagram">┌──────────────────────────────┐
+│         Interfaz UI          │
+├──────────────────────────────┤
+│      Motor de Configuración  │
+├──────────────────────────────┤
+│        Motor de Cálculo      │
+├──────────────────────────────┤
+│      Ensamblador 3D          │
+├──────────────────────────────┤
+│   Generador de Documentos    │
+├──────────────────────────────┤
+│ Catálogos / Reglas / Layouts │
+└──────────────────────────────┘</div>
+    <p style="color:var(--muted); margin-top:10px;">Diseño en capas con separación clara entre dominio del negocio, cálculo, presentación y datos.</p>
+  </section>
+
+  <section>
+    <h2>5. Modelo de Datos</h2>
+    <div class="grid-2">
+      <div>
+        <h3>5.1 Catálogo de perfiles</h3>
+        <div class="code">{
+  "id": "1695",
+  "nombre": "RIEL DOBLE",
+  "serie": "2500",
+  "tipo": "marco",
+  "material": "Aluminio 6063-T5",
+  "acabados": ["Natural", "Blanco", "Negro"]
+}</div>
+      </div>
+      <div>
+        <h3>5.4 Layouts</h3>
+        <div class="code">{
+  "id": "4hojas_corrediza",
+  "paneles": [
+    { "tipo": "fijo" },
+    { "tipo": "corredizo", "direccion": "izquierda" },
+    { "tipo": "corredizo", "direccion": "derecha" },
+    { "tipo": "fijo" }
+  ]
+}</div>
+      </div>
+      <div>
+        <h3>5.2 Accesorios</h3>
+        <div class="code">{
+  "id": "JAL-101",
+  "tipo": "jaladera",
+  "modelo": "Embutida",
+  "anclaje": "hoja",
+  "offset": { "x": 40, "y": 900, "z": 12 }
+}</div>
+      </div>
+      <div>
+        <h3>5.3 Reglas de cálculo</h3>
+        <div class="code">{
+  "pieza": "HOJA",
+  "perfil": "1699",
+  "cantidad": 4,
+  "corte": "45°",
+  "formula": "(H - 4) / 2"
+}</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>6. Estructura del Repositorio</h2>
+    <div class="code">ALUCALC-3D/
+│
+├── src/
+│   ├── app/
+│   ├── core/
+│   │   ├── calculation/
+│   │   ├── geometry/
+│   │   ├── rendering/
+│   │   └── documents/
+│   └── ui/
+│
+├── catalog/
+│   ├── profiles/
+│   ├── accessories/
+│   ├── glass/
+│   ├── screens/
+│   ├── systems/
+│   │   ├── 2500/
+│   │   ├── 3800/
+│   │   └── 4500/
+│   └── layouts/
+│
+├── assets/
+│   ├── models/
+│   ├── textures/
+│   └── icons/
+│
+├── scripts/
+│   ├── import_catalog.py
+│   ├── validate_rules.py
+│   └── generate_examples.py
+│
+└── docs/
+    ├── architecture/
+    ├── catalog-format/
+    └── api/</div>
+  </section>
+
+  <section>
+    <h2>7. Motor de Cálculo</h2>
+    <div class="code">Entrada
+{
+  "serie": "2500",
+  "tipo": "corrediza_doble",
+  "ancho": 2400,
+  "alto": 1500
+}
+
+Proceso
+- Cargar reglas de la serie.
+- Resolver variables H y V.
+- Evaluar expresiones matemáticas.
+- Generar lista de piezas.
+
+Salida
+{
+  "piezas": [
+    {
+      "clave": "1695",
+      "descripcion": "RIEL DOBLE",
+      "cantidad": 2,
+      "longitud": 2400,
+      "corte": "45°"
+    }
+  ]
+}</div>
+  </section>
+
+  <section>
+    <h2>8. Ensamblador 3D</h2>
+    <p><strong>Tecnología:</strong> Three.js / WebGL / WebGPU</p>
+    <h3>Capacidades</h3>
+    <ul>
+      <li>Crear marcos paramétricos.</li>
+      <li>Crear hojas corredizas.</li>
+      <li>Posicionar vidrios.</li>
+      <li>Insertar jaladeras.</li>
+      <li>Insertar mosquiteros.</li>
+      <li>Actualizar geometría en tiempo real.</li>
+    </ul>
+    <h3>API interna</h3>
+    <div class="code">const window3D = WindowBuilder.build({
+  serie: "2500",
+  layout: "4hojas_corrediza",
+  ancho: 3600,
+  alto: 2200,
+  mosquitero: true
+});</div>
+  </section>
+
+  <section>
+   <h2>9. Generación de Documentos</h2>
+
+    <h3>9.1 Lista de cortes</h3>
+    <p>Columnas mínimas:</p>
+    <table>
+      <thead>
+        <tr><th>Clave</th><th>Descripción</th><th>Cantidad</th><th>Longitud</th><th>Corte</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1695</td><td>RIEL DOBLE</td><td>2</td><td>2400</td><td>45°</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.2 Croquis técnico</h3>
+    <ul>
+      <li>Vista frontal.</li>
+      <li>Cotas generales.</li>
+      <li>Identificación de paneles.</li>
+      <li>Sentido de apertura.</li>
+    </ul>
+
+    <h3>9.3 Cotización</h3>
+    <ul>
+      <li>Peso o longitud de perfiles.</li>
+      <li>Accesorios.</li>
+      <li>Vidrio.</li>
+      <li>Mano de obra (parámetro configurable).</li>
+      <li>Margen comercial.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>10. Flujo de Trabajo Completo</h2>
+    <div class="diagram">Usuario
+   ↓
+Selecciona serie y layout
+   ↓
+Ingresa ancho y alto
+   ↓
+Motor de cálculo
+   ↓
+Lista de piezas
+   ↓
+Ensamblador 3D
+   ↓
+Vista interactiva
+   ↓
+Generador de documentos
+   ↓
+Lista de cortes + Croquis + Cotización</div>
+    <p style="color:var(--muted); margin-top:10px;">Flujo lineal de extremo a extremo, con retroalimentación visual desde la etapa de cálculo hasta la documentación lista para producción.</p>
+  </section>
+
+  <section>
+    <h2>11. Requisitos No Funcionales</h2>
+    <h3>Rendimiento</h3>
+    <ul>
+      <li>Generación de cálculo &lt; 200 ms.</li>
+      <li>Ensamble 3D &lt; 1 s para configuraciones estándar.</li>
+      <li>Soporte para ventanas de hasta 6 paneles.</li>
+    </ul>
+    <h3>Calidad</h3>
+    <ul>
+      <li>Cobertura de pruebas del motor de cálculo &gt; 90%.</li>
+      <li>Validación de fórmulas al cargar catálogos.</li>
+      <li>Detección de perfiles inexistentes.</li>
+    </ul>
+    <h3>Compatibilidad</h3>
+    <ul>
+      <li>Navegadores modernos: Chrome, Edge, Firefox y Safari.</li>
+      <li>Resoluciones de escritorio y tablet.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>12. Estrategia de Migración</h2>
+    <div class="grid-2">
+      <div>
+        <h3>Fase 1 — Infraestructura</h3>
+        <ul>
+          <li>Crear estructura <code>catalog/</code>.</li>
+          <li>Implementar cargador de catálogos.</li>
+          <li>Implementar validador de reglas.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Fase 2 — Motor de cálculo</h3>
+        <ul>
+          <li>Evaluador de expresiones.</li>
+          <li>Generación de piezas.</li>
+          <li>Pruebas con Serie 2500.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Fase 3 — Visualización 3D</h3>
+        <ul>
+          <li>Refactor de escena Three.js.</li>
+          <li>Implementación de WindowBuilder.</li>
+          <li>Integración de accesorios.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Fase 4 — Documentos</h3>
+        <ul>
+          <li>Exportación PDF de lista de cortes.</li>
+          <li>Generación SVG / Canvas de croquis.</li>
+          <li>Motor de cotización.</li>
+        </ul>
+      </div>
+    </div>
+    <h3 style="margin-top:18px;">Fase 5 — Escalabilidad</h3>
+    <ul>
+      <li>Agregar series 3800 y 4500.</li>
+      <li>Incorporar layouts adicionales.</li>
+      <li>Soporte para puertas corredizas.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>13. Criterios de Aceptación</h2>
+    <h3>Catálogo</h3>
+    <ul>
+      <li>El sistema carga perfiles desde archivos JSON externos.</li>
+      <li>Es posible agregar una nueva serie sin modificar el código fuente.</li>
+    </ul>
+    <h3>Cálculo</h3>
+    <ul>
+      <li>Una ventana Serie 2500 genera exactamente las piezas esperadas según el catálogo técnico.</li>
+      <li>Las longitudes calculadas coinciden con las fórmulas del fabricante.</li>
+    </ul>
+    <h3>Visualización</h3>
+    <ul>
+      <li>El modelo 3D cambia al modificar ancho o alto.</li>
+      <li>Las jaladeras aparecen en las hojas móviles.</li>
+      <li>El mosquitero puede activarse y desactivarse.</li>
+    </ul>
+    <h3>Documentos</h3>
+    <ul>
+      <li>Se genera una lista de cortes descargable.</li>
+      <li>Se genera un croquis técnico con cotas.</li>
+      <li>Se calcula una cotización con materiales y accesorios.</li>
+    </ul>
+  </section>
+
+  <section>
+  <h2>14. Riesgos y Mitigaciones</h2>
+    <table>
+      <thead>
+        <tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Fórmulas incorrectas en el catálogo</td>
+          <td>Alto</td>
+          <td>Validador automático + pruebas unitarias</td>
+        </tr>
+        <tr>
+          <td>Modelos 3D demasiado pesados</td>
+          <td>Medio</td>
+          <td>Uso de geometrías simplificadas y reutilización de meshes</td>
+        </tr>
+        <tr>
+          <td>Incompatibilidad entre series y layouts</td>
+          <td>Alto</td>
+          <td>Reglas de compatibilidad en <code>systems/</code></td>
+        </tr>
+        <tr>
+          <td>Crecimiento desordenado del catálogo</td>
+          <td>Medio</td>
+          <td>Esquemas JSON versionados y documentación obligatoria</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>15. Roadmap Posterior a v2.0</h2>
+    <div class="grid-2">
+      <div>
+        <h3>v2.1</h3>
+        <ul>
+          <li>Optimización automática de cortes.</li>
+          <li>Exportación CSV / Excel.</li>
+          <li>Biblioteca ampliada de herrajes.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>v2.2</h3>
+        <ul>
+          <li>Exportación DXF.</li>
+          <li>Exportación GLTF / GLB.</li>
+          <li>Soporte para vidrio laminado y doble vidrio.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>v3.0</h3>
+        <ul>
+          <li>Motor CAD/CAM completo.</li>
+          <li>Anidado de perfiles.</li>
+          <li>Integración con ERP / inventario.</li>
+          <li>Generación automática de órdenes de producción.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>16. Resumen Ejecutivo</h2>
+    <p>La actualización <strong>ALUCALC-3D Professional Engine v2.0</strong> convierte el proyecto en una plataforma técnica integral para la industria de cancelería de aluminio. La incorporación de catálogos reales de Euroalum / Indalum, un motor paramétrico de cálculo, un ensamblador 3D inteligente y un generador de documentación de fabricación permite automatizar el flujo completo desde el diseño hasta la preparación para producción.</p>
+    <p>La arquitectura basada en <strong>catálogos + reglas + layouts</strong> garantiza que el sistema pueda crecer incorporando nuevas series, accesorios y configuraciones sin necesidad de reescribir el núcleo del software, estableciendo una base sólida para futuras capacidades CAD/CAM y de manufactura digital.</p>
+  </section>
+
+</div>
+</body>
+</html>
