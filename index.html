@@ -3,59 +3,710 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ALU3D · Editor</title>
-    <!-- Estilos CSS -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Importar Three.js y sus módulos desde CDN -->
+    <title>ALU3D · Professional Engine</title>
+    <style>
+      :root {
+        --bg: #f7f8fb;
+        --surface: #ffffff;
+        --text: #1d1d1f;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --accent: #ff6b35;
+        --panel-bg: rgba(22, 24, 29, 0.94);
+        --panel-text: #e5e7eb;
+        --input-bg: #16181d;
+        --input-border: #2f333a;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        line-height: 1.5;
+      }
+      #canvas-container {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+      #panel {
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        width: 340px;
+        max-height: calc(100vh - 28px);
+        background: var(--panel-bg);
+        color: var(--panel-text);
+        border: 1px solid #2a2d35;
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 18px 55px rgba(0,0,0,0.5);
+        z-index: 100;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 0.88rem;
+        backdrop-filter: blur(14px);
+      }
+      #panel h2 {
+        margin: 0;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      #panel h3 {
+        margin: 2px 0;
+        color: #a1a1aa;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      label {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+      input, select {
+        background: var(--input-bg);
+        color: #fff;
+        border: 1px solid var(--input-border);
+        padding: 6px 8px;
+        border-radius: 8px;
+        width: 140px;
+      }
+      input[type="number"] { width: 110px; }
+      button {
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { filter: brightness(1.08); }
+      button.secondary { background: #334155; }
+      button.accent { background: var(--accent); }
+      #items-container {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 140px;
+        overflow-y: auto;
+        background: rgba(0,0,0,0.35);
+        border-radius: 10px;
+      }
+      #items-container li {
+        padding: 8px 10px;
+        margin: 6px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #items-container li.active {
+        outline: 1px solid var(--accent);
+        background: rgba(255,107,53,0.12);
+      }
+      .muted { color: #8a8d95; font-size: 0.72rem; }
+      #status {
+        margin-top: 6px;
+        font-size: 0.76rem;
+        color: #9aa1ac;
+      }
+      #info-status {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: #8a8d95;
+        border-top: 1px solid #2a2d35;
+        padding-top: 10px;
+      }
+      #cut-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.76rem;
+      }
+      #cut-table th, #cut-table td {
+        border: 1px solid #2a2d35;
+        padding: 6px 8px;
+        text-align: left;
+      }
+      #cut-table th {
+        background: #1f2228;
+        color: #d1d5db;
+      }
+      #cut-table td { color: #e5e7eb; }
+    </style>
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
         }
+      }
     </script>
 </head>
 <body>
-    <!-- Panel de control lateral -->
+    <div id="canvas-container"></div>
     <div id="panel">
-        <h2>📐 ALU3D · Editor</h2>
-        <div id="element-list">
-            <h3>Elementos</h3>
-            <ul id="items-container"></ul>
-            <button id="add-btn">+ Añadir Elemento</button>
-        </div>
-        <div id="editor-section">
-            <h3>Configurar</h3>
-            <div id="editor-fields">
-                <label>Nombre: <input type="text" id="edit-name" placeholder="Nombre del elemento"></label>
-                <label>Tipo: 
-                    <select id="edit-type">
-                        <option value="box">Caja</option>
-                        <option value="sphere">Esfera</option>
-                        <option value="cylinder">Cilindro</option>
-                    </select>
-                </label>
-                <label>Color: <input type="color" id="edit-color" value="#ff5722"></label>
-                <label>Ancho (X): <input type="range" id="edit-width" min="0.5" max="3" step="0.1" value="1.5"></label>
-                <label>Alto (Y): <input type="range" id="edit-height" min="0.5" max="3" step="0.1" value="1.5"></label>
-                <label>Profundo (Z): <input type="range" id="edit-depth" min="0.5" max="3" step="0.1" value="1.5"></label>
-            </div>
-            <div id="editor-actions">
-                <button id="save-btn">💾 Guardar Cambios</button>
-                <button id="delete-btn" style="background:#c0392b;">🗑️ Eliminar</button>
-            </div>
-        </div>
-        <div id="info-status">
-            <span id="fps-counter">60 FPS</span>
-            <span>🖱️ Arrastra para rotar · Scroll zoom</span>
-        </div>
+      <h2>🏗️ ALU3D · Professional Engine</h2>
+      <h3>Configuración</h3>
+      <label>Serie
+        <select id="cfg-series">
+          <option value="2500">2500</option>
+          <option value="3800">3800</option>
+          <option value="4500">4500</option>
+        </select>
+      </label>
+      <label>Layout
+        <select id="cfg-layout">
+          <option value="corrediza_doble">Corrediza doble</option>
+          <option value="fija_1hoja">Fija 1 hoja</option>
+          <option value="oscilobatiente">Oscilobatiente</option>
+        </select>
+      </label>
+      <label>Ancho <input type="number" id="cfg-width" value="2400" min="600" max="6000" step="10"></label>
+      <label>Alto <input type="number" id="cfg-height" value="1500" min="400" max="3000" step="10"></label>
+      <label>Mosquitero <input type="checkbox" id="cfg-screen"></label>
+      <button id="build-btn">Generar ventana</button>
+      <button id="parts-btn" class="secondary">Ver lista de piezas</button>
+      <button id="download-csv" class="accent">Descargar lista de cortes CSV</button>
+
+      <h3>Lista de cortes</h3>
+      <div style="overflow:auto; max-height:160px;">
+        <table id="cut-table">
+          <thead><tr><th>Clave</th><th>Descripción</th><th>Cant.</th><th>Longitud</th><th>Corte</th></tr></thead>
+          <tbody id="cut-body"></tbody>
+        </table>
+      </div>
+
+      <h3>Piezas / Layout</h3>
+      <ul id="items-container"></ul>
+      <div id="status" class="muted">Sin ventana generada.</div>
+
+      <div id="info-status">
+        <span id="fps-counter">-- FPS</span>
+        <span>🖱️ Orbit · Scroll zoom</span>
+      </div>
     </div>
 
-    <!-- Contenedor para el visor 3D -->
-    <div id="canvas-container"></div>
+    <script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    <!-- Lógica JavaScript -->
-    <script type="module" src="script.js"></script>
+// ============================================================
+// CATÁLOGO MULTISERIE Y REGLAS
+// ============================================================
+const catalog = {
+  series: {
+    '2500': {
+      profiles: {
+        '1695': { name: 'RIEL DOBLE', type: 'marco', depthMM: 50 },
+        '1699': { name: 'HOJA', type: 'hoja', depthMM: 45 },
+        'JAL-101': { name: 'JALADERA', type: 'accesorio', depthMM: 12 }
+      },
+      materials: {
+        frameColor: '#b8c0c6',
+        sashColor: '#d4d9de',
+        glassColor: '#aeddef',
+        screenColor: '#4a5d66',
+        handleColor: '#111827'
+      },
+      rules: {
+        'corrediza_doble': {
+          panels: [
+            { tipo: 'fijo' },
+            { tipo: 'corredizo', direccion: 'izquierda' },
+            { tipo: 'corredizo', direccion: 'derecha' },
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '1695', label: 'RIEL DOBLE', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '1695', label: 'RIEL DOBLE', qty: 2, axis: 'y', cut: '45°', formula: '(H-4)/2' },
+            { id: '1699', label: 'HOJA',     qty: 4, axis: 'y', cut: '45°', formula: '(H-4)/2' },
+            { id: 'JAL-101', label: 'JALADERA', qty: 2, axis: 'sash', cut: '-', formula: '-' }
+          ]
+        },
+        'fija_1hoja': {
+          panels: [
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '1695', label: 'RIEL DOBLE', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '1695', label: 'RIEL DOBLE', qty: 2, axis: 'y', cut: '45°', formula: 'H' }
+          ]
+        },
+        'oscilobatiente': {
+          panels: [
+            { tipo: 'hoja', direccion: 'izquierda' },
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '1695', label: 'RIEL DOBLE', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '1695', label: 'RIEL DOBLE', qty: 2, axis: 'y', cut: '45°', formula: 'H' },
+            { id: '1699', label: 'HOJA',     qty: 2, axis: 'y', cut: '45°', formula: '(H-4)/2' },
+            { id: 'JAL-101', label: 'JALADERA', qty: 1, axis: 'sash', cut: '-', formula: '-' }
+          ]
+        }
+      }
+    },
+    '3800': {
+      profiles: {
+        '3801': { name: 'MARCO 3800', type: 'marco', depthMM: 58 },
+        '3802': { name: 'HOJA 3800', type: 'hoja', depthMM: 52 },
+        'JAL-201': { name: 'JALADERA 3800', type: 'accesorio', depthMM: 14 }
+      },
+      materials: {
+        frameColor: '#c3c9d0',
+        sashColor: '#d8dde3',
+        glassColor: '#b6e4f7',
+        screenColor: '#566872',
+        handleColor: '#0f172a'
+      },
+      rules: {
+        'corrediza_doble': {
+          panels: [
+            { tipo: 'fijo' },
+            { tipo: 'corredizo', direccion: 'izquierda' },
+            { tipo: 'corredizo', direccion: 'derecha' },
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '3801', label: 'MARCO 3800', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '3801', label: 'MARCO 3800', qty: 2, axis: 'y', cut: '45°', formula: 'H' },
+            { id: '3802', label: 'HOJA 3800', qty: 4, axis: 'y', cut: '45°', formula: '(H-6)/2' },
+            { id: 'JAL-201', label: 'JALADERA 3800', qty: 2, axis: 'sash', cut: '-', formula: '-' }
+          ]
+        },
+        'fija_1hoja': {
+          panels: [{ tipo: 'fijo' }],
+          pieces: [
+            { id: '3801', label: 'MARCO 3800', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '3801', label: 'MARCO 3800', qty: 2, axis: 'y', cut: '45°', formula: 'H' }
+          ]
+        },
+        'oscilobatiente': {
+          panels: [
+            { tipo: 'hoja', direccion: 'izquierda' },
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '3801', label: 'MARCO 3800', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '3801', label: 'MARCO 3800', qty: 2, axis: 'y', cut: '45°', formula: 'H' },
+            { id: '3802', label: 'HOJA 3800', qty: 2, axis: 'y', cut: '45°', formula: '(H-6)/2' },
+            { id: 'JAL-201', label: 'JALADERA 3800', qty: 1, axis: 'sash', cut: '-', formula: '-' }
+          ]
+        }
+      }
+    },
+    '4500': {
+      profiles: {
+        '4501': { name: 'MARCO 4500', type: 'marco', depthMM: 65 },
+        '4502': { name: 'HOJA 4500', type: 'hoja', depthMM: 58 },
+        'JAL-301': { name: 'JALADERA 4500', type: 'accesorio', depthMM: 16 }
+      },
+      materials: {
+        frameColor: '#cacfd6',
+        sashColor: '#dde2e7',
+        glassColor: '#bde6fa',
+        screenColor: '#637381',
+        handleColor: '#0b1220'
+      },
+      rules: {
+        'corrediza_doble': {
+          panels: [
+            { tipo: 'fijo' },
+            { tipo: 'corredizo', direccion: 'izquierda' },
+            { tipo: 'corredizo', direccion: 'derecha' },
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '4501', label: 'MARCO 4500', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '4501', label: 'MARCO 4500', qty: 2, axis: 'y', cut: '45°', formula: 'H+2' },
+            { id: '4502', label: 'HOJA 4500', qty: 4, axis: 'y', cut: '45°', formula: '(H-8)/2' },
+            { id: 'JAL-301', label: 'JALADERA 4500', qty: 2, axis: 'sash', cut: '-', formula: '-' }
+          ]
+        },
+        'fija_1hoja': {
+          panels: [{ tipo: 'fijo' }],
+          pieces: [
+            { id: '4501', label: 'MARCO 4500', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '4501', label: 'MARCO 4500', qty: 2, axis: 'y', cut: '45°', formula: 'H+2' }
+          ]
+        },
+        'oscilobatiente': {
+          panels: [
+            { tipo: 'hoja', direccion: 'izquierda' },
+            { tipo: 'fijo' }
+          ],
+          pieces: [
+            { id: '4501', label: 'MARCO 4500', qty: 2, axis: 'x', cut: '45°', formula: 'A' },
+            { id: '4501', label: 'MARCO 4500', qty: 2, axis: 'y', cut: '45°', formula: 'H+2' },
+            { id: '4502', label: 'HOJA 4500', qty: 2, axis: 'y', cut: '45°', formula: '(H-8)/2' },
+            { id: 'JAL-301', label: 'JALADERA 4500', qty: 1, axis: 'sash', cut: '-', formula: '-' }
+          ]
+        }
+      }
+    }
+  }
+};
+
+// ============================================================
+// ESTADO
+// ============================================================
+const state = {
+  elements: [],
+  parts: [],
+  selectedId: null,
+  nextId: 1,
+  current: null
+};
+
+// ============================================================
+// THREE / ESCENA
+// ============================================================
+const container = document.getElementById('canvas-container');
+const itemsContainer = document.getElementById('items-container');
+const statusEl = document.getElementById('status');
+const cutBody = document.getElementById('cut-body');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x14171d);
+
+const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 120);
+camera.position.set(3.2, 2.4, 5.4);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0, 0.55, 0);
+
+scene.add(new THREE.AmbientLight(0x556070, 1.2));
+
+const mainLight = new THREE.DirectionalLight(0xfff0dd, 2.4);
+mainLight.position.set(4, 8, 5);
+mainLight.castShadow = true;
+mainLight.shadow.mapSize.set(1024, 1024);
+mainLight.shadow.bias = -0.0005;
+scene.add(mainLight);
+
+const fillLight = new THREE.DirectionalLight(0x4488ff, 0.4);
+fillLight.position.set(-4, 1, -3);
+scene.add(fillLight);
+
+const grid = new THREE.GridHelper(10, 20, 0x3a3f4a, 0x24272e);
+grid.position.y = -0.01;
+scene.add(grid);
+
+const groundGeo = new THREE.PlaneGeometry(10, 10);
+const groundMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const root = new THREE.Group();
+scene.add(root);
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function clearScene() {
+  while (root.children.length) {
+    const child = root.children[0];
+    root.remove(child);
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) child.material.dispose();
+  }
+  state.elements = [];
+  state.selectedId = null;
+  renderList();
+}
+
+function activeCatalog() {
+  return catalog.series[state.current?.serie || '2500'] || catalog.series['2500'];
+}
+
+function addPartMesh(part, lengthMM) {
+  const s = activeCatalog();
+  const profile = s.profiles[part.id];
+  const depthMM = (profile && profile.depthMM) ? profile.depthMM : 50;
+  const depth = depthMM / 1000;
+  const height = depth;
+  const width = lengthMM / 1000;
+
+  const frameLike = part.typeHint === 'hoja' || (profile && profile.type === 'hoja');
+  const color = new THREE.Color(frameLike ? s.materials.sashColor : s.materials.frameColor);
+
+  const geo = new THREE.BoxGeometry(width, height, depth);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.15 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = { kind: 'part', part };
+
+  mesh.position.set(0, height/2, 0);
+  root.add(mesh);
+  state.elements.push({ id: state.nextId++, name: part.label, mesh, part });
+}
+
+function addHandleAt(x, y, z) {
+  const s = activeCatalog();
+  const geo = new THREE.BoxGeometry(0.06, 0.12, 0.06);
+  const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(s.materials.handleColor), roughness: 0.2, metalness: 0.7 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, y, z);
+  mesh.userData = { kind: 'handle' };
+  root.add(mesh);
+  state.elements.push({ id: state.nextId++, name: 'Jaladera', mesh });
+}
+
+function addGlass(w, h) {
+  const s = activeCatalog();
+  const geo = new THREE.PlaneGeometry(w - 0.04, h - 0.04);
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(s.materials.glassColor),
+    roughness: 0.05,
+    metalness: 0.05,
+    transmission: 0.85,
+    thickness: 0.015,
+    transparent: true,
+    opacity: 0.7,
+    side: THREE.DoubleSide
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(0, h/2, 0);
+  mesh.userData = { kind: 'glass' };
+  root.add(mesh);
+  state.elements.push({ id: state.nextId++, name: 'Vidrio', mesh });
+}
+
+function addScreen(w, h) {
+  const s = activeCatalog();
+  const geo = new THREE.PlaneGeometry(w - 0.06, h - 0.06);
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(s.materials.screenColor),
+    roughness: 0.9,
+    metalness: 0.0,
+    side: THREE.DoubleSide
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(0, h/2, 0.005);
+  mesh.userData = { kind: 'screen' };
+  root.add(mesh);
+  state.elements.push({ id: state.nextId++, name: 'Mosquitero', mesh });
+}
+
+// ============================================================
+// CÁLCULO / REGLAS
+// ============================================================
+function calculateParts(serie, layout, anchoMM, altoMM) {
+  const rules = catalog.series[serie]?.rules?.[layout];
+  if (!rules) throw new Error('Reglas no encontradas: ' + serie + ' / ' + layout);
+
+  const A = anchoMM;
+  const H = altoMM;
+  const parts = [];
+  const seen = new Map();
+
+  const push = (p) => {
+    const key = p.id + '|' + p.axis + '|' + p.cut + '|' + p.lengthMM;
+    if (!seen.has(key)) {
+      seen.set(key, { ...p, _key: key, runningQty: 0 });
+    }
+    seen.get(key).runningQty += 1;
+  };
+
+  for (const def of rules.pieces) {
+    let lengthMM = 0;
+    const expr = String(def.formula).replace('A', A).replace('H', H);
+    if (def.formula === '-' || expr === '-') {
+      lengthMM = 0;
+    } else {
+      try { lengthMM = Function('"use strict"; return (' + expr + ')')(); }
+      catch (e) { lengthMM = Number(expr) || 0; }
+    }
+    for (let i = 0; i < def.qty; i++) {
+      push({
+        id: def.id,
+        label: def.label,
+        lengthMM: Math.round(lengthMM),
+        cut: def.cut,
+        axis: def.axis,
+        typeHint: def.id?.startsWith('1699') || def.id?.startsWith('3802') || def.id?.startsWith('4502') ? 'hoja' : (def.id?.startsWith('1695') || def.id?.startsWith('3801') || def.id?.startsWith('4501') ? 'marco' : 'accesorio')
+      });
+    }
+  }
+
+  return Array.from(seen.values()).map((p, idx) => ({
+    uid: idx,
+    id: p.id,
+    label: p.label,
+    lengthMM: p.lengthMM,
+    cut: p.cut,
+    axis: p.axis,
+    qty: p.runningQty,
+    typeHint: p.typeHint
+  }));
+}
+
+function renderPartsList(parts) {
+  itemsContainer.innerHTML = '';
+  parts.forEach(p => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${p.label}</span><span class="muted">${p.lengthMM} mm · ${p.cut}</span>`;
+    itemsContainer.appendChild(li);
+  });
+}
+
+function renderCutTable(parts) {
+  cutBody.innerHTML = '';
+  parts.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.id}</td><td>${p.label}</td><td>${p.qty}</td><td>${p.lengthMM}</td><td>${p.cut}</td>`;
+    cutBody.appendChild(tr);
+  });
+}
+
+function downloadCSV(parts) {
+  const header = 'Clave,Descripción,Cantidad,Longitud,Corte\n';
+  const rows = parts.map(p => `${p.id},${p.label},${p.qty},${p.lengthMM},${p.cut}`).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lista-cortes-${state.current?.serie || 'x'}-${state.current?.layout || 'x'}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// WINDOW BUILDER
+// ============================================================
+const WindowBuilder = {
+  build({ serie, layout, anchoMM, altoMM, mosquitero }) {
+    clearScene();
+    state.current = {
+      serie: String(serie),
+      layout: String(layout),
+      anchoMM: Number(anchoMM),
+      altoMM: Number(altoMM),
+      mosquitero: Boolean(mosquitero)
+    };
+
+    const parts = calculateParts(state.current.serie, state.current.layout, state.current.anchoMM, state.current.altoMM);
+    state.parts = parts;
+
+    const aw = state.current.anchoMM / 1000;
+    const ah = state.current.altoMM / 1000;
+
+    const xParts = parts.filter(p => p.axis === 'x');
+    const yParts = parts.filter(p => p.axis === 'y');
+    const sashParts = parts.filter(p => p.axis === 'sash');
+
+    for (const p of xParts) addPartMesh(p, p.lengthMM);
+    for (const p of yParts) addPartMesh(p, p.lengthMM);
+
+    const layoutDef = activeCatalog().rules[state.current.layout]?.panels || [];
+    const movableIndices = layoutDef
+      .map((p, i) => (p.tipo === 'corredizo' || p.tipo === 'hoja') ? i : -1)
+      .filter(i => i !== -1);
+
+    for (const idx of movableIndices) {
+      const left = 0.02 + (idx / (layoutDef.length || 1)) * (aw - 0.04);
+      const handleY = ah * 0.2;
+      addHandleAt(left, handleY, 0.028);
+    }
+
+    addGlass(aw, ah);
+    if (state.current.mosquitero) addScreen(aw, ah);
+
+    controls.target.set(0, ah/2, 0);
+    camera.position.set(aw * 1.15, ah * 0.95, aw * 1.35);
+    controls.update();
+
+    statusEl.textContent = `${state.current.layout} · ${state.current.anchoMM}x${state.current.altoMM} mm · ${parts.length} piezas`;
+    renderPartsList(parts);
+    renderCutTable(parts);
+    return { ...state.current, parts };
+  }
+};
+
+// ============================================================
+// UI BINDINGS
+// ============================================================
+document.getElementById('build-btn').addEventListener('click', () => {
+  const serie = document.getElementById('cfg-series').value;
+  const layout = document.getElementById('cfg-layout').value;
+  const ancho = Number(document.getElementById('cfg-width').value);
+  const alto = Number(document.getElementById('cfg-height').value);
+  const mosquitero = document.getElementById('cfg-screen').checked;
+  WindowBuilder.build({ serie, layout, anchoMM: ancho, altoMM: alto, mosquitero });
+});
+
+document.getElementById('parts-btn').addEventListener('click', () => {
+  renderPartsList(state.parts);
+  statusEl.textContent = state.parts.length ? `Lista: ${state.parts.length} piezas` : 'Sin ventana generada.';
+});
+
+document.getElementById('download-csv').addEventListener('click', () => {
+  if (!state.parts.length) {
+    alert('Generá una ventana primero para exportar.');
+    return;
+  }
+  downloadCSV(state.parts);
+});
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+WindowBuilder.build({
+  serie: '2500',
+  layout: 'corrediza_doble',
+  anchoMM: 2400,
+  altoMM: 1500,
+  mosquitero: false
+});
+
+let frameCount = 0;
+let lastFps = performance.now();
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+  frameCount++;
+  const now = performance.now();
+  if (now - lastFps >= 1000) {
+    document.getElementById('fps-counter').textContent = `${frameCount} FPS`;
+    frameCount = 0;
+    lastFps = now;
+  }
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+});
+    </script>
 </body>
 </html>
