@@ -11,7 +11,6 @@ const state = {
 
 // --- REFERENCIAS A UI ---
 const container = document.getElementById('canvas-container');
-const itemsContainer = document.getElementById('items-container');
 const editName = document.getElementById('edit-name');
 const editType = document.getElementById('edit-type');
 const editColor = document.getElementById('edit-color');
@@ -162,7 +161,7 @@ function getElement(id) {
 // --- FUNCIONES DE UI ---
 
 function renderList() {
-    itemsContainer.innerHTML = '';
+    (document.getElementById('items-container')).innerHTML = '';
     state.elements.forEach(el => {
         const li = document.createElement('li');
         li.textContent = el.name;
@@ -180,7 +179,7 @@ function renderList() {
         colorDot.style.marginLeft = '8px';
         li.appendChild(colorDot);
         
-        itemsContainer.appendChild(li);
+        (document.getElementById('items-container')).appendChild(li);
     });
 }
 
