@@ -1,590 +1,1510 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>ALUCALC-3D Professional Engine v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MundoCancel · ALUCALC 3D · Despiece Técnico</title>
 <style>
   :root {
-    --bg: #f7f8fb;
-    --surface: #ffffff;
+    --accent: #0071e3;
+    --accent-soft: #409cff;
+    --bg: #f5f5f7;
+    --panel: rgba(255, 255, 255, 0.58);
+    --panel-solid: #ffffff;
+    --panel-highlight: rgba(255, 255, 255, 0.8);
     --text: #1d1d1f;
-    --muted: #6b7280;
-    --border: #e5e7eb;
-    --accent: #ff6b35;
-    --code-bg: #0f172a;
-    --code-text: #e2e8f0;
-    --chip-bg: #eef2ff;
-    --chip-text: #1e3a8a;
+    --text-soft: #6e6e73;
+    --border: rgba(0, 0, 0, 0.08);
+    --track: rgba(0, 0, 0, 0.06);
+    --scene-bg: #e5e5ea;
+    --success: #30d158;
+    --info: #0071e3;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.04);
+    --shadow-md: 0 6px 20px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-lg: 0 24px 70px rgba(0,0,0,.14), 0 6px 20px rgba(0,0,0,.08);
+    --ease: cubic-bezier(.16,1,.3,1);
   }
-  * { box-sizing: border-box; }
+  [data-theme="dark"] {
+    --bg: #000000;
+    --panel: rgba(30, 30, 32, 0.6);
+    --panel-solid: #1c1c1e;
+    --panel-highlight: rgba(255, 255, 255, 0.06);
+    --text: #f5f5f7;
+    --text-soft: #98989d;
+    --border: rgba(255, 255, 255, 0.09);
+    --track: rgba(255, 255, 255, 0.09);
+    --scene-bg: #000000;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
+    --shadow-md: 0 6px 20px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.4);
+    --shadow-lg: 0 24px 70px rgba(0,0,0,.65), 0 6px 20px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
-    margin: 0;
-    padding: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    line-height: 1.6;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+    transition: background 0.4s var(--ease), color 0.4s var(--ease);
   }
-  .container {
-    max-width: 1020px;
-    margin: 0 auto;
-    padding: 48px 24px;
+  body {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    grid-template-rows: 64px 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar viewport";
   }
   header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: var(--panel);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
     border-bottom: 1px solid var(--border);
-    padding-bottom: 24px;
-    margin-bottom: 28px;
+    z-index: 10;
   }
-  h1 {
-    font-size: 2.2rem;
-    letter-spacing: -0.02em;
-    margin: 0 0 6px;
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 700; }
+  .brand-logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(160deg, #3d3d40, #1d1d1f);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 15px;
+    box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.15);
   }
-  .subtitle {
-    color: var(--muted);
-    font-size: 1rem;
+  .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand-title { color: var(--text); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 10px; font-weight: 500; color: var(--text-soft); letter-spacing: 1.2px; }
+  .header-actions {
+    display: flex; gap: 2px; align-items: center;
+    background: var(--track);
+    padding: 4px; border-radius: 13px;
   }
-  .badge {
-    display: inline-block;
-    background: var(--chip-bg);
-    color: var(--chip-text);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    margin-right: 8px;
-  }
-  section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 22px 24px;
-    margin-bottom: 18px;
-  }
-  h2 {
-    font-size: 1.35rem;
-    margin: 0 0 10px;
-  }
-  h3 {
-    font-size: 1.05rem;
-    margin: 24px 0 8px;
-    color: #111827;
-  }
-  h3:first-of-type { margin-top: 8px; }
-  p, li {
-    color: #374151;
-  }
-  ul { padding-left: 22px; }
-  .mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 0.95rem;
-  }
-  .code {
-    background: var(--code-bg);
-    color: var(--code-text);
-    padding: 14px 16px;
-    border-radius: 12px;
-    overflow: auto;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 0.92rem;
-    line-height: 1.5;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 0.95rem;
-  }
-  th, td {
-    border: 1px solid var(--border);
-    padding: 10px 12px;
-    text-align: left;
-  }
-  th { background: #f3f4f6; }
-  .diagram {
-    background: #0b1220;
-    color: #cbd5e1;
-    padding: 14px 16px;
-    border-radius: 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 0.9rem;
-    overflow: auto;
-    white-space: pre;
-  }
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  .grid-2 > * { min-width: 0; }
-  .hr {
+  .icon-btn {
+    width: 34px; height: 34px;
     border: none;
-    border-top: 1px solid var(--border);
-    margin: 24px 0;
+    background: transparent;
+    border-radius: 9px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-soft);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.15s var(--ease);
+    position: relative;
   }
-  @media (min-width: 760px) {
-    .grid-2 { grid-template-columns: 1fr 1fr; }
-    h1 { font-size: 2.6rem; }
+  .icon-btn:hover { background: var(--panel-solid); color: var(--text); box-shadow: var(--shadow-sm); }
+  .icon-btn:active { transform: scale(0.92); }
+  .icon-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 10px rgba(0,113,227,.4); }
+  .icon-btn svg { width: 17px; height: 17px; }
+  .btn-label {
+    position: absolute;
+    bottom: -22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-soft);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s var(--ease);
+    pointer-events: none;
+    background: var(--panel-solid);
+    padding: 3px 7px;
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+  .icon-btn:hover .btn-label { opacity: 1; }
+
+  aside {
+    grid-area: sidebar;
+    background: var(--panel);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 22px 20px;
+  }
+  aside::-webkit-scrollbar { width: 5px; }
+  aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .section { margin-bottom: 26px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--text-soft);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title::before {
+    content: ''; width: 4px; height: 4px;
+    background: var(--accent); border-radius: 50%;
+  }
+
+  .control-row { margin-bottom: 18px; }
+  .control-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .control-value {
+    color: var(--text); font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    background: var(--track);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px;
+    background: var(--track);
+    border-radius: 3px; outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px;
+    background: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-md), 0 0 0 1px rgba(0,0,0,.04);
+    transition: transform 0.15s var(--ease);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px;
+    background: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Segmented control (Tipo de Cancel) */
+  .type-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;
+    background: var(--track);
+    padding: 4px;
+    border-radius: 14px;
+  }
+  .type-btn {
+    padding: 12px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-soft);
+    transition: all 0.25s var(--ease);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .type-btn:hover { color: var(--text); }
+  .type-btn.active {
+    background: var(--panel-solid);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+  }
+  .type-btn svg { width: 28px; height: 28px; }
+
+  .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .color-swatch {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    position: relative;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.5), inset 0 -1px 2px rgba(0,0,0,.1);
+  }
+  .color-swatch:hover { transform: scale(1.1); }
+  .color-swatch.active {
+    box-shadow: 0 0 0 2px var(--panel-solid), 0 0 0 4px var(--accent);
+  }
+  .color-swatch.active::after {
+    content: '✓';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 13px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* Component list */
+  .component-list { display: flex; flex-direction: column; gap: 6px; }
+  .component-item {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    background: var(--panel-solid);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 12px;
+    transition: all 0.2s var(--ease);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+  }
+  .component-item:hover {
+    transform: translateX(2px);
+    box-shadow: var(--shadow-md);
+  }
+  .component-item.highlighted {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.12);
+  }
+  .component-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    background: var(--track);
+    color: var(--accent);
+  }
+  .component-name { font-weight: 600; color: var(--text); line-height: 1.2; }
+  .component-spec { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+  .component-qty {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--track);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  /* Info table */
+  .info-table {
+    font-size: 12px; color: var(--text-soft); line-height: 1.7;
+    background: var(--panel-solid);
+    border-radius: 12px;
+    padding: 4px 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .info-row {
+    display: flex; justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row span:last-child {
+    color: var(--text); font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  /* Viewport */
+  .viewport {
+    grid-area: viewport;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.5), transparent 60%),
+      var(--scene-bg);
+    transition: background 0.4s var(--ease);
+  }
+  #canvas3d { width: 100%; height: 100%; display: block; outline: none; }
+  #canvas3d:focus { box-shadow: inset 0 0 0 3px rgba(0,113,227,0.25); }
+
+  #overlaySvg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Dimension labels */
+  .dimension-label {
+    position: absolute;
+    background: var(--panel-solid);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: none;
+    padding: 6px 11px;
+    border-radius: 8px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 12px;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    z-index: 3;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .dimension-label .unit { font-weight: 400; color: var(--text-soft); margin-left: 2px; font-size: 10px; }
+
+  /* Component 3D label */
+  .component-label-3d {
+    position: absolute;
+    background: var(--panel-solid);
+    border: none;
+    padding: 5px 11px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    pointer-events: none;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    z-index: 3;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+  }
+  .component-label-3d.visible { opacity: 1; }
+  .component-label-3d::before {
+    content: '';
+    position: absolute;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    left: -10px; top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.2);
+  }
+
+  /* View controls — floating glass capsule, macOS Control Center style */
+  .view-controls {
+    position: absolute;
+    top: 20px; left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 5;
+    background: var(--panel);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    padding: 4px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md), inset 0 1px 0 var(--panel-highlight);
+  }
+  .view-btn {
+    width: 38px; height: 38px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-soft);
+    transition: all 0.2s var(--ease);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .view-btn:hover { background: var(--track); color: var(--text); }
+  .view-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 10px rgba(0,113,227,.4); }
+
+  /* HUD */
+  .hud {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    display: flex; gap: 8px;
+    z-index: 5;
+  }
+  .hud-chip {
+    background: var(--panel);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow-sm), inset 0 1px 0 var(--panel-highlight);
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-chip .dot {
+    width: 7px; height: 7px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--success);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+  /* Mode indicator */
+  .mode-indicator {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: var(--panel);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    padding: 8px 8px 8px 16px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    z-index: 5;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow-sm), inset 0 1px 0 var(--panel-highlight);
+  }
+  .mode-indicator .badge {
+    background: var(--accent);
+    color: white;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+
+  .help-hint {
+    position: absolute;
+    bottom: 20px; right: 20px;
+    background: var(--panel);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 11px;
+    color: var(--text-soft);
+    max-width: 220px;
+    line-height: 1.6;
+    z-index: 5;
+    box-shadow: var(--shadow-sm), inset 0 1px 0 var(--panel-highlight);
+  }
+  .help-hint kbd {
+    background: var(--track);
+    border: none;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--text);
+  }
+
+  .loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--scene-bg);
+    z-index: 100;
+    transition: opacity 0.5s var(--ease);
+  }
+  .loader.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+  .loader-mark {
+    width: 44px; height: 44px;
+    background: linear-gradient(160deg, #3d3d40, #1d1d1f);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 19px;
+    box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .spinner {
+    width: 22px; height: 22px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text { font-size: 12px; color: var(--text-soft); font-weight: 500; letter-spacing: 0.2px; }
+
+  @media (max-width: 768px) {
+    body {
+      grid-template-columns: 1fr;
+      grid-template-rows: 60px 1fr auto;
+      grid-template-areas: "header" "viewport" "sidebar";
+    }
+    aside { max-height: 45vh; border-right: none; border-top: 1px solid var(--border); }
+    .help-hint { display: none; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="subtitle"><span class="badge">v2.0</span><span class="badge">Propuesta</span></div>
-    <h1>ALUCALC-3D Professional Engine</h1>
-    <div class="subtitle">Diseño, cálculo, visualización y documentación para ventanas y puertas de aluminio</div>
-  </header>
 
-  <section>
-    <h2>1. Visión General</h2>
-    <p><strong>Nombre de la actualización:</strong> ALUCALC-3D Professional Engine v2.0</p>
-    <p><strong>Objetivo:</strong> Transformar ALUCALC-3D de un visor web básico en una plataforma profesional de diseño, cálculo, visualización y preparación para fabricación de ventanas y puertas de aluminio, utilizando datos reales de la línea Euroalum / Indalum.</p>
-    <p><strong>Resultado esperado:</strong></p>
-    <ul>
-      <li>Seleccionar perfiles reales del catálogo.</li>
-      <li>Calcular automáticamente cortes y dimensiones.</li>
-      <li>Ensamblar un modelo 3D verificable.</li>
-      <li>Generar documentación lista para producción.</li>
-      <li>Escalar fácilmente a nuevas series y configuraciones.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>2. Alcance Funcional</h2>
-
-    <h3>✅ Incluido en esta actualización</h3>
-    <ul>
-      <li>Catálogo técnico real</li>
-      <li>Series Euroalum / Indalum: 2500, 2800, 3800, 3900, 4000, 4500</li>
-      <li>Perfiles estructurales, junquillos, mosquiteros, adaptadores de traslape</li>
-      <li>Herrajes y accesorios básicos</li>
-    </ul>
-
-    <h3>🧮 Motor de cálculo</h3>
-    <ul>
-      <li>Evaluación de fórmulas paramétricas</li>
-      <li>Cálculo de longitudes de corte</li>
-      <li>Cantidad de piezas</li>
-      <li>Tipo de corte: 45° / 90°</li>
-      <li>Cálculo de dimensiones de vidrio</li>
-    </ul>
-
-    <h3>🧊 Visualización 3D</h3>
-    <ul>
-      <li>Ensamble paramétrico</li>
-      <li>Cambio dinámico de dimensiones</li>
-      <li>Compatibilidad con mosquiteros y jaladeras</li>
-      <li>Materiales básicos de aluminio y vidrio</li>
-    </ul>
-
-    <h3>📄 Generación de documentos</h3>
-    <ul>
-      <li>Lista de cortes</li>
-      <li>Croquis técnico 2D</li>
-      <li>Cotización preliminar</li>
-    </ul>
-
-    <h3>🧩 Arquitectura extensible</h3>
-    <ul>
-      <li>Catálogos desacoplados del motor</li>
-      <li>Layouts reutilizables</li>
-      <li>Reglas por serie</li>
-    </ul>
-  </section>
-
-  <section>
-     <h2>3. Objetivos de Negocio</h2>
-    <h3>Problemas actuales</h3>
-    <ul>
-      <li>Uso de medidas genéricas.</li>
-      <li>Cálculos manuales propensos a error.</li>
-      <li>No existe relación entre el modelo 3D y la fabricación real.</li>
-      <li>Difícil agregar nuevas series.</li>
-    </ul>
-
-    <h3>Beneficios esperados</h3>
-    <ul>
-      <li>Reducción de errores de fabricación.</li>
-      <li>Menor desperdicio de aluminio y vidrio.</li>
-      <li>Cotizaciones más rápidas.</li>
-      <li>Visualización previa para el cliente.</li>
-      <li>Escalabilidad del sistema.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>4. Arquitectura Propuesta</h2>
-    <div class="diagram">┌──────────────────────────────┐
-│         Interfaz UI          │
-├──────────────────────────────┤
-│      Motor de Configuración  │
-├──────────────────────────────┤
-│        Motor de Cálculo      │
-├──────────────────────────────┤
-│      Ensamblador 3D          │
-├──────────────────────────────┤
-│   Generador de Documentos    │
-├──────────────────────────────┤
-│ Catálogos / Reglas / Layouts │
-└──────────────────────────────┘</div>
-    <p style="color:var(--muted); margin-top:10px;">Diseño en capas con separación clara entre dominio del negocio, cálculo, presentación y datos.</p>
-  </section>
-
-  <section>
-    <h2>5. Modelo de Datos</h2>
-    <div class="grid-2">
-      <div>
-        <h3>5.1 Catálogo de perfiles</h3>
-        <div class="code">{
-  "id": "1695",
-  "nombre": "RIEL DOBLE",
-  "serie": "2500",
-  "tipo": "marco",
-  "material": "Aluminio 6063-T5",
-  "acabados": ["Natural", "Blanco", "Negro"]
-}</div>
-      </div>
-      <div>
-        <h3>5.4 Layouts</h3>
-        <div class="code">{
-  "id": "4hojas_corrediza",
-  "paneles": [
-    { "tipo": "fijo" },
-    { "tipo": "corredizo", "direccion": "izquierda" },
-    { "tipo": "corredizo", "direccion": "derecha" },
-    { "tipo": "fijo" }
-  ]
-}</div>
-      </div>
-      <div>
-        <h3>5.2 Accesorios</h3>
-        <div class="code">{
-  "id": "JAL-101",
-  "tipo": "jaladera",
-  "modelo": "Embutida",
-  "anclaje": "hoja",
-  "offset": { "x": 40, "y": 900, "z": 12 }
-}</div>
-      </div>
-      <div>
-        <h3>5.3 Reglas de cálculo</h3>
-        <div class="code">{
-  "pieza": "HOJA",
-  "perfil": "1699",
-  "cantidad": 4,
-  "corte": "45°",
-  "formula": "(H - 4) / 2"
-}</div>
-      </div>
+<header>
+  <div class="brand">
+    <div class="brand-logo">M</div>
+    <div class="brand-text">
+      <span class="brand-title">MundoCanceles</span>
+      <span class="brand-sub">ALUCALC · DESPIECE TÉCNICO</span>
     </div>
-  </section>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="explodeBtn" title="Vista de despiece" aria-label="Activar vista de despiece">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="btn-label">Despiece</span>
+    </button>
+    <button class="icon-btn" id="labelsBtn" title="Mostrar etiquetas" aria-label="Mostrar etiquetas de componentes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      <span class="btn-label">Etiquetas</span>
+    </button>
+    <button class="icon-btn" id="dimsBtn" title="Acotaciones" aria-label="Mostrar acotaciones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3z"/><path d="M9 3v18M3 9h18"/></svg>
+      <span class="btn-label">Acotar</span>
+    </button>
+    <button class="icon-btn" id="resetBtn" title="Resetear vista" aria-label="Resetear vista">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      <span class="btn-label">Reset</span>
+    </button>
+    <button class="icon-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <span class="btn-label">Tema</span>
+    </button>
+  </div>
+</header>
 
-  <section>
-    <h2>6. Estructura del Repositorio</h2>
-    <div class="code">ALUCALC-3D/
-│
-├── src/
-│   ├── app/
-│   ├── core/
-│   │   ├── calculation/
-│   │   ├── geometry/
-│   │   ├── rendering/
-│   │   └── documents/
-│   └── ui/
-│
-├── catalog/
-│   ├── profiles/
-│   ├── accessories/
-│   ├── glass/
-│   ├── screens/
-│   ├── systems/
-│   │   ├── 2500/
-│   │   ├── 3800/
-│   │   └── 4500/
-│   └── layouts/
-│
-├── assets/
-│   ├── models/
-│   ├── textures/
-│   └── icons/
-│
-├── scripts/
-│   ├── import_catalog.py
-│   ├── validate_rules.py
-│   └── generate_examples.py
-│
-└── docs/
-    ├── architecture/
-    ├── catalog-format/
-    └── api/</div>
-  </section>
+<aside>
+  <div class="section">
+    <div class="section-title">Tipo de Cancel</div>
+    <div class="type-grid" id="typeGrid">
+      <button class="type-btn active" data-type="fijo">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="6" width="24" height="20" rx="1"/></svg>
+        Fijo
+      </button>
+      <button class="type-btn" data-type="1hoja">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="6" width="24" height="20" rx="1"/><line x1="16" y1="6" x2="16" y2="26"/></svg>
+        1 Hoja
+      </button>
+      <button class="type-btn" data-type="2hojas">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="6" width="24" height="20" rx="1"/><line x1="16" y1="6" x2="16" y2="26"/></svg>
+        2 Hojas
+      </button>
+      <button class="type-btn" data-type="corrediza">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="6" width="24" height="20" rx="1"/><rect x="6" y="8" width="10" height="16" opacity="0.5"/><rect x="16" y="8" width="10" height="16"/></svg>
+        Corrediza
+      </button>
+    </div>
+  </div>
 
-  <section>
-    <h2>7. Motor de Cálculo</h2>
-    <div class="code">Entrada
+  <div class="section">
+    <div class="section-title">Dimensiones</div>
+    <div class="control-row">
+      <div class="control-label"><span>Ancho</span><span class="control-value" id="widthVal">120 cm</span></div>
+      <input type="range" id="widthSlider" min="60" max="240" value="120" step="5" />
+    </div>
+    <div class="control-row">
+      <div class="control-label"><span>Alto</span><span class="control-value" id="heightVal">140 cm</span></div>
+      <input type="range" id="heightSlider" min="60" max="240" value="140" step="5" />
+    </div>
+    <div class="control-row">
+      <div class="control-label"><span>Vidrio</span><span class="control-value" id="glassVal">6 mm</span></div>
+      <input type="range" id="glassSlider" min="3" max="12" value="6" step="1" />
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Color del Perfil</div>
+    <div class="color-grid" id="colorGrid">
+      <div class="color-swatch active" data-color="#E8E8E8" style="background:#E8E8E8" title="Blanco"></div>
+      <div class="color-swatch" data-color="#1a1a1a" style="background:#1a1a1a" title="Negro"></div>
+      <div class="color-swatch" data-color="#B8BCC2" style="background:#B8BCC2" title="Plata"></div>
+      <div class="color-swatch" data-color="#5C4033" style="background:#5C4033" title="Bronce"></div>
+      <div class="color-swatch" data-color="#2F4F4F" style="background:#2F4F4F" title="Verde"></div>
+      <div class="color-swatch" data-color="#C9A961" style="background:linear-gradient(135deg,#C9A961,#8B6914)" title="Dorado"></div>
+      <div class="color-swatch" data-color="#8B0000" style="background:#8B0000" title="Rojo"></div>
+      <div class="color-swatch" data-color="#1E3A5F" style="background:#1E3A5F" title="Azul"></div>
+      <div class="color-swatch" data-color="#6B4423" style="background:linear-gradient(135deg,#8B5A2B,#4A2E17)" title="Madera"></div>
+      <div class="color-swatch" data-color="#4A5568" style="background:#4A5568" title="Grafito"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Lista de Componentes</div>
+    <div class="component-list" id="componentList"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Especificaciones</div>
+    <div class="info-table">
+      <div class="info-row"><span>Área total</span><span id="infoArea">1.68 m²</span></div>
+      <div class="info-row"><span>Perímetro</span><span id="infoPerim">5.20 m</span></div>
+      <div class="info-row"><span>Peso estimado</span><span id="infoWeight">28.4 kg</span></div>
+      <div class="info-row"><span>Tipo</span><span id="infoType">Fijo</span></div>
+      <div class="info-row"><span>Perfil</span><span id="infoProfile">Aluminio 6063-T5</span></div>
+    </div>
+  </div>
+</aside>
+
+<div class="viewport" id="viewport">
+  <canvas id="canvas3d" tabindex="0" role="img" aria-label="Visor 3D de cancel MundoCanceles"></canvas>
+  <svg id="overlaySvg"></svg>
+
+  <!-- View controls -->
+  <div class="view-controls">
+    <button class="view-btn active" data-view="3d" title="Vista 3D">3D</button>
+    <button class="view-btn" data-view="front" title="Vista Frontal">F</button>
+    <button class="view-btn" data-view="side" title="Vista Lateral">L</button>
+    <button class="view-btn" data-view="top" title="Vista Superior">S</button>
+  </div>
+
+  <!-- Mode indicator -->
+  <div class="mode-indicator" id="modeIndicator">
+    <span id="modeText">Vista 3D</span>
+    <span class="badge" id="modeBadge">PBR</span>
+  </div>
+
+  <!-- Dimension labels -->
+  <div class="dimension-label" id="labelWidth" style="display:none;">
+    <span class="value" id="labelWidthVal">120</span><span class="unit">cm</span>
+  </div>
+  <div class="dimension-label" id="labelHeight" style="display:none;">
+    <span class="value" id="labelHeightVal">140</span><span class="unit">cm</span>
+  </div>
+
+  <div class="hud">
+    <div class="hud-chip"><span class="dot"></span><span id="fpsCounter">60 FPS</span></div>
+    <div class="hud-chip">PBR · HDRI</div>
+  </div>
+
+  <div class="help-hint">
+    <strong style="color:var(--text);">Controles:</strong><br>
+    🖱️ Arrastra para rotar · Scroll zoom<br>
+    ⌨️ <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> rotar
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="loader-mark">M</div>
+    <div class="spinner"></div>
+    <div class="loader-text">Cargando despiece técnico…</div>
+  </div>
+</div>
+
+<script type="importmap">
 {
-  "serie": "2500",
-  "tipo": "corrediza_doble",
-  "ancho": 2400,
-  "alto": 1500
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ============ STATE ============
+const state = {
+  width: 120,
+  height: 140,
+  glass: 6,
+  color: 0xE8E8E8,
+  type: 'fijo',
+  exploded: false,
+  showLabels: false,
+  showDimensions: true,
+  viewMode: '3d'
+};
+
+const typeLabels = {
+  fijo: 'Fijo',
+  '1hoja': '1 Hoja',
+  '2hojas': '2 Hojas',
+  corrediza: 'Corrediza'
+};
+
+// ============ SCENE SETUP ============
+const viewport = document.getElementById('viewport');
+const canvas = document.getElementById('canvas3d');
+const overlaySvg = document.getElementById('overlaySvg');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef1f6);
+
+const camera = new THREE.PerspectiveCamera(35, viewport.clientWidth / viewport.clientHeight, 0.1, 100);
+camera.position.set(0, 0, 5);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: true,
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.useLegacyLights = false;
+
+// Environment
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const roomEnv = new RoomEnvironment();
+const envTexture = pmremGenerator.fromScene(roomEnv, 0.04).texture;
+scene.environment = envTexture;
+roomEnv.dispose();
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+keyLight.position.set(5, 8, 5);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.near = 0.1;
+keyLight.shadow.camera.far = 30;
+keyLight.shadow.camera.left = -5;
+keyLight.shadow.camera.right = 5;
+keyLight.shadow.camera.top = 5;
+keyLight.shadow.camera.bottom = -5;
+keyLight.shadow.bias = -0.0001;
+keyLight.shadow.radius = 4;
+scene.add(keyLight);
+
+const rimLight = new THREE.DirectionalLight(0xFF6B35, 0.6);
+rimLight.position.set(-5, 3, -5);
+scene.add(rimLight);
+
+const fillLight = new THREE.DirectionalLight(0x8899AA, 0.4);
+fillLight.position.set(3, -2, 4);
+scene.add(fillLight);
+
+// Controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 2;
+controls.maxDistance = 10;
+controls.maxPolarAngle = Math.PI * 0.9;
+
+// Materials
+const glassMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x99B3CC,
+  metalness: 0,
+  roughness: 0.02,
+  transmission: 0.96,
+  thickness: 0.5,
+  ior: 1.52,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  transparent: true,
+  attenuationColor: new THREE.Color(0xAACCEE),
+  attenuationDistance: 0.5,
+  envMapIntensity: 1.0,
+  side: THREE.DoubleSide
+});
+
+const frameMaterial = new THREE.MeshPhysicalMaterial({
+  color: state.color,
+  metalness: 0.85,
+  roughness: 0.25,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.15,
+  envMapIntensity: 1.5
+});
+
+const handleMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x333333,
+  metalness: 0.95,
+  roughness: 0.15,
+  clearcoat: 0.8,
+  clearcoatRoughness: 0.1,
+  envMapIntensity: 1.5
+});
+
+const floorMat = new THREE.MeshStandardMaterial({
+  color: 0xd8dde5,
+  roughness: 0.8,
+  metalness: 0.1
+});
+
+// ============ WINDOW GROUP ============
+const windowGroup = new THREE.Group();
+scene.add(windowGroup);
+
+// Floor
+const floor = new THREE.Mesh(new THREE.CircleGeometry(4, 64), floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -1.5;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Component registry (for labels and exploded view)
+const components = [];
+let componentData = [];
+
+const FRAME_PROFILE = 0.06;
+const FRAME_DEPTH = 0.08;
+
+function meters(cm) { return cm / 100; }
+
+function clearWindow() {
+  while (windowGroup.children.length > 0) {
+    const child = windowGroup.children[0];
+    windowGroup.remove(child);
+    if (child.geometry) child.geometry.dispose();
+  }
+  components.length = 0;
+  // Clear 3D labels
+  document.querySelectorAll('.component-label-3d').forEach(el => el.remove());
 }
 
-Proceso
-- Cargar reglas de la serie.
-- Resolver variables H y V.
-- Evaluar expresiones matemáticas.
-- Generar lista de piezas.
+function createFramePiece(width, height, depth, position, name, explodeOffset) {
+  const geo = new RoundedBoxGeometry(width, height, depth, 4, 0.015);
+  const mesh = new THREE.Mesh(geo, frameMaterial);
+  mesh.position.copy(position);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = {
+    name,
+    basePosition: position.clone(),
+    explodeOffset: explodeOffset || new THREE.Vector3(),
+    currentOffset: new THREE.Vector3()
+  };
+  components.push(mesh);
+  return mesh;
+}
 
-Salida
-{
-  "piezas": [
-    {
-      "clave": "1695",
-      "descripcion": "RIEL DOBLE",
-      "cantidad": 2,
-      "longitud": 2400,
-      "corte": "45°"
+function createGlassPane(width, height, thickness, position, name, explodeOffset) {
+  const geo = new THREE.BoxGeometry(width, height, thickness);
+  const mesh = new THREE.Mesh(geo, glassMaterial);
+  mesh.position.copy(position);
+  mesh.userData = {
+    name,
+    basePosition: position.clone(),
+    explodeOffset: explodeOffset || new THREE.Vector3(),
+    currentOffset: new THREE.Vector3()
+  };
+  components.push(mesh);
+  return mesh;
+}
+
+function createHandle(position, name, explodeOffset) {
+  const handleGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.12, 16);
+  const handle = new THREE.Mesh(handleGeo, handleMaterial);
+  handle.rotation.z = Math.PI / 2;
+  handle.position.copy(position);
+  handle.castShadow = true;
+  handle.userData = {
+    name,
+    basePosition: position.clone(),
+    explodeOffset: explodeOffset || new THREE.Vector3(),
+    currentOffset: new THREE.Vector3()
+  };
+  components.push(handle);
+
+  const baseGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.02, 16);
+  const base = new THREE.Mesh(baseGeo, handleMaterial);
+  base.rotation.z = Math.PI / 2;
+  base.position.set(position.x, position.y, position.z - 0.01);
+  base.castShadow = true;
+  windowGroup.add(base);
+
+  return handle;
+}
+
+function buildWindow() {
+  clearWindow();
+
+  const W = meters(state.width);
+  const H = meters(state.height);
+  const glassThickness = Math.max(0.005, state.glass * 0.002);
+  const fp = FRAME_PROFILE;
+  const fd = FRAME_DEPTH;
+
+  // Outer frame pieces
+  windowGroup.add(createFramePiece(W + fp, fp, fd, new THREE.Vector3(0, H/2 + fp/2, 0), 'Marco Superior', new THREE.Vector3(0, 0.4, 0)));
+  windowGroup.add(createFramePiece(W + fp, fp, fd, new THREE.Vector3(0, -H/2 - fp/2, 0), 'Marco Inferior', new THREE.Vector3(0, -0.4, 0)));
+  windowGroup.add(createFramePiece(fp, H + fp, fd, new THREE.Vector3(-W/2 - fp/2, 0, 0), 'Jamba Izquierda', new THREE.Vector3(-0.4, 0, 0)));
+  windowGroup.add(createFramePiece(fp, H + fp, fd, new THREE.Vector3(W/2 + fp/2, 0, 0), 'Jamba Derecha', new THREE.Vector3(0.4, 0, 0)));
+
+  if (state.type === 'fijo') {
+    windowGroup.add(createGlassPane(W - 0.02, H - 0.02, glassThickness, new THREE.Vector3(0, 0, 0), 'Vidrio Fijo', new THREE.Vector3(0, 0, 0.5)));
+  }
+  else if (state.type === '1hoja') {
+    windowGroup.add(createFramePiece(fp * 0.7, H, fd, new THREE.Vector3(0, 0, 0), 'Montante Central', new THREE.Vector3(0, 0, 0.3)));
+    windowGroup.add(createGlassPane(W - 0.02, H - 0.02, glassThickness, new THREE.Vector3(0, 0, 0), 'Vidrio Hoja', new THREE.Vector3(0, 0, 0.5)));
+    windowGroup.add(createHandle(new THREE.Vector3(W/2 - 0.08, 0, fd/2 + 0.02), 'Manija', new THREE.Vector3(0.3, 0, 0.4)));
+  }
+  else if (state.type === '2hojas') {
+    windowGroup.add(createFramePiece(fp * 0.7, H, fd, new THREE.Vector3(0, 0, 0), 'Montante Central', new THREE.Vector3(0, 0, 0.3)));
+    const paneW = (W - fp * 0.7) / 2 - 0.01;
+    windowGroup.add(createGlassPane(paneW, H - 0.02, glassThickness, new THREE.Vector3(-(paneW/2 + fp * 0.35 / 2), 0, 0), 'Vidrio Izq.', new THREE.Vector3(-0.3, 0, 0.5)));
+    windowGroup.add(createGlassPane(paneW, H - 0.02, glassThickness, new THREE.Vector3((paneW/2 + fp * 0.35 / 2), 0, 0), 'Vidrio Der.', new THREE.Vector3(0.3, 0, 0.5)));
+    windowGroup.add(createHandle(new THREE.Vector3(-0.05, 0, fd/2 + 0.02), 'Manija Izq.', new THREE.Vector3(-0.2, 0, 0.4)));
+    windowGroup.add(createHandle(new THREE.Vector3(0.05, 0, fd/2 + 0.02), 'Manija Der.', new THREE.Vector3(0.2, 0, 0.4)));
+  }
+  else if (state.type === 'corrediza') {
+    const paneW = W * 0.55;
+    const paneH = H - 0.02;
+    windowGroup.add(createGlassPane(paneW, paneH, glassThickness, new THREE.Vector3(-W * 0.15, 0, -0.01), 'Hoja Trasera', new THREE.Vector3(-0.3, 0, -0.3)));
+    windowGroup.add(createGlassPane(paneW, paneH, glassThickness, new THREE.Vector3(W * 0.15, 0, 0.015), 'Hoja Frontal', new THREE.Vector3(0.3, 0, 0.5)));
+    // Rails
+    const railGeo = new RoundedBoxGeometry(W, 0.015, fd * 0.5, 2, 0.005);
+    const railTop = new THREE.Mesh(railGeo, frameMaterial);
+    railTop.position.set(0, H/2 - 0.02, 0);
+    railTop.castShadow = true;
+    railTop.userData = { name: 'Riel Superior', basePosition: railTop.position.clone(), explodeOffset: new THREE.Vector3(0, 0.3, 0), currentOffset: new THREE.Vector3() };
+    components.push(railTop);
+    windowGroup.add(railTop);
+
+    const railBot = new THREE.Mesh(railGeo.clone(), frameMaterial);
+    railBot.position.set(0, -H/2 + 0.02, 0);
+    railBot.castShadow = true;
+    railBot.userData = { name: 'Riel Inferior', basePosition: railBot.position.clone(), explodeOffset: new THREE.Vector3(0, -0.3, 0), currentOffset: new THREE.Vector3() };
+    components.push(railBot);
+    windowGroup.add(railBot);
+
+    windowGroup.add(createHandle(new THREE.Vector3(W * 0.15 - paneW/2 + 0.08, 0, fd/2 + 0.02), 'Manija Corrediza', new THREE.Vector3(0.3, 0, 0.4)));
+  }
+
+  updateComponentList();
+  updateAriaLabel();
+}
+
+// ============ COMPONENT LIST ============
+function updateComponentList() {
+  const list = document.getElementById('componentList');
+  list.innerHTML = '';
+
+  // Group components by name
+  const grouped = {};
+  components.forEach(c => {
+    const name = c.userData.name;
+    if (!grouped[name]) grouped[name] = { count: 0, mesh: c };
+    grouped[name].count++;
+  });
+
+  const iconMap = {
+    'Marco': '▬',
+    'Jamba': '▮',
+    'Montante': '▮',
+    'Vidrio': '◻',
+    'Manija': '◉',
+    'Riel': '═',
+    'Hoja': '◻'
+  };
+
+  Object.entries(grouped).forEach(([name, data]) => {
+    const icon = Object.entries(iconMap).find(([k]) => name.includes(k))?.[1] || '●';
+    const spec = getComponentSpec(name);
+    const item = document.createElement('div');
+    item.className = 'component-item';
+    item.dataset.name = name;
+    item.innerHTML = `
+      <div class="component-icon">${icon}</div>
+      <div>
+        <div class="component-name">${name}</div>
+        <div class="component-spec">${spec}</div>
+      </div>
+      <div class="component-qty">×${data.count}</div>
+    `;
+    item.addEventListener('mouseenter', () => highlightComponent(name, true));
+    item.addEventListener('mouseleave', () => highlightComponent(name, false));
+    item.addEventListener('click', () => focusComponent(name));
+    list.appendChild(item);
+  });
+}
+
+function getComponentSpec(name) {
+  const W = state.width;
+  const H = state.height;
+  if (name.includes('Superior') || name.includes('Inferior')) return `${W} cm · Perfil ${FRAME_PROFILE*100}mm`;
+  if (name.includes('Jamba')) return `${H} cm · Perfil ${FRAME_PROFILE*100}mm`;
+  if (name.includes('Montante')) return `${H} cm · Perfil ${FRAME_PROFILE*0.7*100}mm`;
+  if (name.includes('Vidrio') || name.includes('Hoja')) return `${state.glass}mm · ${W}×${H}cm`;
+  if (name.includes('Manija')) return 'Aluminio · 120mm';
+  if (name.includes('Riel')) return `${W} cm · Aluminio`;
+  return '';
+}
+
+function highlightComponent(name, highlight) {
+  components.forEach(c => {
+    if (c.userData.name === name) {
+      if (highlight) {
+        c.userData._origEmissive = c.material.emissive?.clone();
+        if (c.material.emissive) c.material.emissive.setHex(0xff6b35);
+        if (c.material.emissiveIntensity !== undefined) c.material.emissiveIntensity = 0.3;
+      } else {
+        if (c.material.emissive && c.userData._origEmissive) {
+          c.material.emissive.copy(c.userData._origEmissive);
+          c.material.emissiveIntensity = 0;
+        }
+      }
     }
-  ]
-}</div>
-  </section>
+  });
+  // Highlight list item
+  document.querySelectorAll('.component-item').forEach(item => {
+    if (item.dataset.name === name) {
+      item.classList.toggle('highlighted', highlight);
+    }
+  });
+}
 
-  <section>
-    <h2>8. Ensamblador 3D</h2>
-    <p><strong>Tecnología:</strong> Three.js / WebGL / WebGPU</p>
-    <h3>Capacidades</h3>
-    <ul>
-      <li>Crear marcos paramétricos.</li>
-      <li>Crear hojas corredizas.</li>
-      <li>Posicionar vidrios.</li>
-      <li>Insertar jaladeras.</li>
-      <li>Insertar mosquiteros.</li>
-      <li>Actualizar geometría en tiempo real.</li>
-    </ul>
-    <h3>API interna</h3>
-    <div class="code">const window3D = WindowBuilder.build({
-  serie: "2500",
-  layout: "4hojas_corrediza",
-  ancho: 3600,
-  alto: 2200,
-  mosquitero: true
-});</div>
-  </section>
+function focusComponent(name) {
+  const comp = components.find(c => c.userData.name === name);
+  if (!comp) return;
+  const worldPos = new THREE.Vector3();
+  comp.getWorldPosition(worldPos);
+  controls.target.copy(worldPos);
+  camera.position.copy(worldPos).add(new THREE.Vector3(0, 0, 2));
+  controls.update();
+}
 
-  <section>
-   <h2>9. Generación de Documentos</h2>
+// ============ 3D LABELS ============
+function update3DLabels() {
+  document.querySelectorAll('.component-label-3d').forEach(el => el.remove());
+  if (!state.showLabels && !state.exploded) return;
 
-    <h3>9.1 Lista de cortes</h3>
-    <p>Columnas mínimas:</p>
-    <table>
-      <thead>
-        <tr><th>Clave</th><th>Descripción</th><th>Cantidad</th><th>Longitud</th><th>Corte</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>1695</td><td>RIEL DOBLE</td><td>2</td><td>2400</td><td>45°</td></tr>
-      </tbody>
-    </table>
+  const seen = new Set();
+  components.forEach(c => {
+    const name = c.userData.name;
+    if (seen.has(name)) return;
+    seen.add(name);
 
-    <h3>9.2 Croquis técnico</h3>
-    <ul>
-      <li>Vista frontal.</li>
-      <li>Cotas generales.</li>
-      <li>Identificación de paneles.</li>
-      <li>Sentido de apertura.</li>
-    </ul>
+    const worldPos = new THREE.Vector3();
+    c.getWorldPosition(worldPos);
+    const screen = projectToScreen(worldPos);
 
-    <h3>9.3 Cotización</h3>
-    <ul>
-      <li>Peso o longitud de perfiles.</li>
-      <li>Accesorios.</li>
-      <li>Vidrio.</li>
-      <li>Mano de obra (parámetro configurable).</li>
-      <li>Margen comercial.</li>
-    </ul>
-  </section>
+    const label = document.createElement('div');
+    label.className = 'component-label-3d';
+    if (state.showLabels || state.exploded) label.classList.add('visible');
+    label.textContent = name;
+    label.style.left = (screen.x + 20) + 'px';
+    label.style.top = screen.y + 'px';
+    viewport.appendChild(label);
 
-  <section>
-    <h2>10. Flujo de Trabajo Completo</h2>
-    <div class="diagram">Usuario
-   ↓
-Selecciona serie y layout
-   ↓
-Ingresa ancho y alto
-   ↓
-Motor de cálculo
-   ↓
-Lista de piezas
-   ↓
-Ensamblador 3D
-   ↓
-Vista interactiva
-   ↓
-Generador de documentos
-   ↓
-Lista de cortes + Croquis + Cotización</div>
-    <p style="color:var(--muted); margin-top:10px;">Flujo lineal de extremo a extremo, con retroalimentación visual desde la etapa de cálculo hasta la documentación lista para producción.</p>
-  </section>
+    // Draw leader line
+    drawLeaderLine(worldPos, new THREE.Vector2(screen.x + 15, screen.y));
+  });
+}
 
-  <section>
-    <h2>11. Requisitos No Funcionales</h2>
-    <h3>Rendimiento</h3>
-    <ul>
-      <li>Generación de cálculo &lt; 200 ms.</li>
-      <li>Ensamble 3D &lt; 1 s para configuraciones estándar.</li>
-      <li>Soporte para ventanas de hasta 6 paneles.</li>
-    </ul>
-    <h3>Calidad</h3>
-    <ul>
-      <li>Cobertura de pruebas del motor de cálculo &gt; 90%.</li>
-      <li>Validación de fórmulas al cargar catálogos.</li>
-      <li>Detección de perfiles inexistentes.</li>
-    </ul>
-    <h3>Compatibilidad</h3>
-    <ul>
-      <li>Navegadores modernos: Chrome, Edge, Firefox y Safari.</li>
-      <li>Resoluciones de escritorio y tablet.</li>
-    </ul>
-  </section>
+function drawLeaderLine(worldPos, screenEnd) {
+  const screenStart = projectToScreen(worldPos);
+  const rect = viewport.getBoundingClientRect();
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', screenStart.x);
+  line.setAttribute('y1', screenStart.y);
+  line.setAttribute('x2', screenEnd.x);
+  line.setAttribute('y2', screenEnd.y);
+  line.setAttribute('stroke', '#ff6b35');
+  line.setAttribute('stroke-width', '1');
+  line.setAttribute('stroke-dasharray', '3,2');
+  line.setAttribute('opacity', '0.6');
+  line.classList.add('leader-line');
+  overlaySvg.appendChild(line);
 
-  <section>
-    <h2>12. Estrategia de Migración</h2>
-    <div class="grid-2">
-      <div>
-        <h3>Fase 1 — Infraestructura</h3>
-        <ul>
-          <li>Crear estructura <code>catalog/</code>.</li>
-          <li>Implementar cargador de catálogos.</li>
-          <li>Implementar validador de reglas.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Fase 2 — Motor de cálculo</h3>
-        <ul>
-          <li>Evaluador de expresiones.</li>
-          <li>Generación de piezas.</li>
-          <li>Pruebas con Serie 2500.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Fase 3 — Visualización 3D</h3>
-        <ul>
-          <li>Refactor de escena Three.js.</li>
-          <li>Implementación de WindowBuilder.</li>
-          <li>Integración de accesorios.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Fase 4 — Documentos</h3>
-        <ul>
-          <li>Exportación PDF de lista de cortes.</li>
-          <li>Generación SVG / Canvas de croquis.</li>
-          <li>Motor de cotización.</li>
-        </ul>
-      </div>
-    </div>
-    <h3 style="margin-top:18px;">Fase 5 — Escalabilidad</h3>
-    <ul>
-      <li>Agregar series 3800 y 4500.</li>
-      <li>Incorporar layouts adicionales.</li>
-      <li>Soporte para puertas corredizas.</li>
-    </ul>
-  </section>
+  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dot.setAttribute('cx', screenStart.x);
+  dot.setAttribute('cy', screenStart.y);
+  dot.setAttribute('r', '3');
+  dot.setAttribute('fill', '#ff6b35');
+  dot.classList.add('leader-line');
+  overlaySvg.appendChild(dot);
+}
 
-  <section>
-    <h2>13. Criterios de Aceptación</h2>
-    <h3>Catálogo</h3>
-    <ul>
-      <li>El sistema carga perfiles desde archivos JSON externos.</li>
-      <li>Es posible agregar una nueva serie sin modificar el código fuente.</li>
-    </ul>
-    <h3>Cálculo</h3>
-    <ul>
-      <li>Una ventana Serie 2500 genera exactamente las piezas esperadas según el catálogo técnico.</li>
-      <li>Las longitudes calculadas coinciden con las fórmulas del fabricante.</li>
-    </ul>
-    <h3>Visualización</h3>
-    <ul>
-      <li>El modelo 3D cambia al modificar ancho o alto.</li>
-      <li>Las jaladeras aparecen en las hojas móviles.</li>
-      <li>El mosquitero puede activarse y desactivarse.</li>
-    </ul>
-    <h3>Documentos</h3>
-    <ul>
-      <li>Se genera una lista de cortes descargable.</li>
-      <li>Se genera un croquis técnico con cotas.</li>
-      <li>Se calcula una cotización con materiales y accesorios.</li>
-    </ul>
-  </section>
+// ============ DIMENSION LINES (CAD STYLE) ============
+function drawDimensionLines() {
+  // Clear previous
+  overlaySvg.querySelectorAll('.dim-line').forEach(el => el.remove());
 
-  <section>
-  <h2>14. Riesgos y Mitigaciones</h2>
-    <table>
-      <thead>
-        <tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Fórmulas incorrectas en el catálogo</td>
-          <td>Alto</td>
-          <td>Validador automático + pruebas unitarias</td>
-        </tr>
-        <tr>
-          <td>Modelos 3D demasiado pesados</td>
-          <td>Medio</td>
-          <td>Uso de geometrías simplificadas y reutilización de meshes</td>
-        </tr>
-        <tr>
-          <td>Incompatibilidad entre series y layouts</td>
-          <td>Alto</td>
-          <td>Reglas de compatibilidad en <code>systems/</code></td>
-        </tr>
-        <tr>
-          <td>Crecimiento desordenado del catálogo</td>
-          <td>Medio</td>
-          <td>Esquemas JSON versionados y documentación obligatoria</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+  if (!state.showDimensions) return;
 
-  <section>
-    <h2>15. Roadmap Posterior a v2.0</h2>
-    <div class="grid-2">
-      <div>
-        <h3>v2.1</h3>
-        <ul>
-          <li>Optimización automática de cortes.</li>
-          <li>Exportación CSV / Excel.</li>
-          <li>Biblioteca ampliada de herrajes.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>v2.2</h3>
-        <ul>
-          <li>Exportación DXF.</li>
-          <li>Exportación GLTF / GLB.</li>
-          <li>Soporte para vidrio laminado y doble vidrio.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>v3.0</h3>
-        <ul>
-          <li>Motor CAD/CAM completo.</li>
-          <li>Anidado de perfiles.</li>
-          <li>Integración con ERP / inventario.</li>
-          <li>Generación automática de órdenes de producción.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+  const W = meters(state.width);
+  const H = meters(state.height);
+  const fp = FRAME_PROFILE;
 
-  <section>
-    <h2>16. Resumen Ejecutivo</h2>
-    <p>La actualización <strong>ALUCALC-3D Professional Engine v2.0</strong> convierte el proyecto en una plataforma técnica integral para la industria de cancelería de aluminio. La incorporación de catálogos reales de Euroalum / Indalum, un motor paramétrico de cálculo, un ensamblador 3D inteligente y un generador de documentación de fabricación permite automatizar el flujo completo desde el diseño hasta la preparación para producción.</p>
-    <p>La arquitectura basada en <strong>catálogos + reglas + layouts</strong> garantiza que el sistema pueda crecer incorporando nuevas series, accesorios y configuraciones sin necesidad de reescribir el núcleo del software, estableciendo una base sólida para futuras capacidades CAD/CAM y de manufactura digital.</p>
-  </section>
+  // Width dimension line (bottom)
+  const wStartWorld = new THREE.Vector3(-W/2 - fp, -H/2 - fp - 0.2, 0);
+  const wEndWorld = new THREE.Vector3(W/2 + fp, -H/2 - fp - 0.2, 0);
+  const wStart = projectToScreen(wStartWorld);
+  const wEnd = projectToScreen(wEndWorld);
+  drawDimLine(wStart, wEnd, 'horizontal');
 
-</div>
+  // Extension lines for width
+  const wExtTop1 = projectToScreen(new THREE.Vector3(-W/2 - fp, -H/2 - fp, 0));
+  const wExtTop2 = projectToScreen(new THREE.Vector3(W/2 + fp, -H/2 - fp, 0));
+  drawExtLine(wExtTop1, wStart);
+  drawExtLine(wExtTop2, wEnd);
+
+  // Height dimension line (right)
+  const hStartWorld = new THREE.Vector3(W/2 + fp + 0.25, -H/2 - fp, 0);
+  const hEndWorld = new THREE.Vector3(W/2 + fp + 0.25, H/2 + fp, 0);
+  const hStart = projectToScreen(hStartWorld);
+  const hEnd = projectToScreen(hEndWorld);
+  drawDimLine(hStart, hEnd, 'vertical');
+
+  // Extension lines for height
+  const hExtLeft1 = projectToScreen(new THREE.Vector3(W/2 + fp, -H/2 - fp, 0));
+  const hExtLeft2 = projectToScreen(new THREE.Vector3(W/2 + fp, H/2 + fp, 0));
+  drawExtLine(hExtLeft1, hStart);
+  drawExtLine(hExtLeft2, hEnd);
+}
+
+function drawDimLine(start, end, orientation) {
+  const svg = overlaySvg;
+
+  // Main line
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', start.x);
+  line.setAttribute('y1', start.y);
+  line.setAttribute('x2', end.x);
+  line.setAttribute('y2', end.y);
+  line.setAttribute('stroke', '#ff6b35');
+  line.setAttribute('stroke-width', '1.5');
+  line.classList.add('dim-line');
+  svg.appendChild(line);
+
+  // Arrows
+  const arrowSize = 6;
+  const angle = Math.atan2(end.y - start.y, end.x - start.x);
+
+  // Start arrow
+  const a1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  const a1p1 = { x: start.x + arrowSize * Math.cos(angle - Math.PI/6), y: start.y + arrowSize * Math.sin(angle - Math.PI/6) };
+  const a1p2 = { x: start.x + arrowSize * Math.cos(angle + Math.PI/6), y: start.y + arrowSize * Math.sin(angle + Math.PI/6) };
+  a1.setAttribute('points', `${start.x},${start.y} ${a1p1.x},${a1p1.y} ${a1p2.x},${a1p2.y}`);
+  a1.setAttribute('fill', '#ff6b35');
+  a1.classList.add('dim-line');
+  svg.appendChild(a1);
+
+  // End arrow
+  const a2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  const a2p1 = { x: end.x - arrowSize * Math.cos(angle - Math.PI/6), y: end.y - arrowSize * Math.sin(angle - Math.PI/6) };
+  const a2p2 = { x: end.x - arrowSize * Math.cos(angle + Math.PI/6), y: end.y - arrowSize * Math.sin(angle + Math.PI/6) };
+  a2.setAttribute('points', `${end.x},${end.y} ${a2p1.x},${a2p1.y} ${a2p2.x},${a2p2.y}`);
+  a2.setAttribute('fill', '#ff6b35');
+  a2.classList.add('dim-line');
+  svg.appendChild(a2);
+}
+
+function drawExtLine(from, to) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', from.x);
+  line.setAttribute('y1', from.y);
+  line.setAttribute('x2', to.x);
+  line.setAttribute('y2', to.y);
+  line.setAttribute('stroke', '#ff6b35');
+  line.setAttribute('stroke-width', '0.8');
+  line.setAttribute('opacity', '0.5');
+  line.classList.add('dim-line');
+  overlaySvg.appendChild(line);
+}
+
+// ============ PROJECTION ============
+function projectToScreen(worldPos) {
+  const vec = worldPos.clone().project(camera);
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (vec.x * 0.5 + 0.5) * rect.width,
+    y: (-vec.y * 0.5 + 0.5) * rect.height
+  };
+}
+
+// ============ LABELS POSITIONING ============
+const labelWidth = document.getElementById('labelWidth');
+const labelHeight = document.getElementById('labelHeight');
+const labelWidthVal = document.getElementById('labelWidthVal');
+const labelHeightVal = document.getElementById('labelHeightVal');
+
+function updateLabels() {
+  labelWidthVal.textContent = state.width;
+  labelHeightVal.textContent = state.height;
+  labelWidth.style.display = state.showDimensions ? 'block' : 'none';
+  labelHeight.style.display = state.showDimensions ? 'block' : 'none';
+}
+
+function positionLabels() {
+  if (!state.showDimensions) return;
+  const W = meters(state.width);
+  const H = meters(state.height);
+  const fp = FRAME_PROFILE;
+
+  const widthWorld = new THREE.Vector3(0, -H/2 - fp - 0.3, 0);
+  const wScreen = projectToScreen(widthWorld);
+  labelWidth.style.left = wScreen.x + 'px';
+  labelWidth.style.top = wScreen.y + 'px';
+
+  const heightWorld = new THREE.Vector3(W/2 + fp + 0.35, 0, 0);
+  const hScreen = projectToScreen(heightWorld);
+  labelHeight.style.left = hScreen.x + 'px';
+  labelHeight.style.top = hScreen.y + 'px';
+}
+
+// ============ EXPLODED VIEW ANIMATION ============
+let explodeTarget = 0;
+let explodeCurrent = 0;
+
+function updateExplodeAnimation() {
+  const delta = explodeTarget - explodeCurrent;
+  if (Math.abs(delta) < 0.001) {
+    explodeCurrent = explodeTarget;
+  } else {
+    explodeCurrent += delta * 0.08;
+  }
+
+  components.forEach(c => {
+    if (c.userData.basePosition && c.userData.explodeOffset) {
+      const target = c.userData.explodeOffset.clone().multiplyScalar(explodeCurrent);
+      c.position.copy(c.userData.basePosition).add(target);
+    }
+  });
+}
+
+// ============ INFO PANEL ============
+function updateInfo() {
+  const W = state.width / 100;
+  const H = state.height / 100;
+  const area = W * H;
+  const perim = 2 * (W + H);
+  const weight = (area * 12 + perim * 1.8).toFixed(1); // glass + aluminum
+  document.getElementById('infoArea').textContent = area.toFixed(2) + ' m²';
+  document.getElementById('infoPerim').textContent = perim.toFixed(2) + ' m';
+  document.getElementById('infoWeight').textContent = weight + ' kg';
+  document.getElementById('infoType').textContent = typeLabels[state.type];
+}
+
+function updateAriaLabel() {
+  canvas.setAttribute('aria-label',
+    `Visor 3D de cancel MundoCanceles. Tipo: ${typeLabels[state.type]}. Dimensiones: ${state.width}x${state.height} cm.`);
+}
+
+// ============ UI HANDLERS ============
+const widthSlider = document.getElementById('widthSlider');
+const heightSlider = document.getElementById('heightSlider');
+const glassSlider = document.getElementById('glassSlider');
+const widthVal = document.getElementById('widthVal');
+const heightVal = document.getElementById('heightVal');
+const glassVal = document.getElementById('glassVal');
+
+function rebuildAll() {
+  buildWindow();
+  updateLabels();
+  updateInfo();
+}
+
+widthSlider.addEventListener('input', (e) => {
+  state.width = parseInt(e.target.value);
+  widthVal.textContent = state.width + ' cm';
+  rebuildAll();
+});
+heightSlider.addEventListener('input', (e) => {
+  state.height = parseInt(e.target.value);
+  heightVal.textContent = state.height + ' cm';
+  rebuildAll();
+});
+glassSlider.addEventListener('input', (e) => {
+  state.glass = parseInt(e.target.value);
+  glassVal.textContent = state.glass + ' mm';
+  glassMaterial.thickness = state.glass * 0.1;
+  rebuildAll();
+});
+
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.type = btn.dataset.type;
+    rebuildAll();
+  });
+});
+
+document.querySelectorAll('.color-swatch').forEach(swatch => {
+  swatch.addEventListener('click', () => {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    swatch.classList.add('active');
+    state.color = parseInt(swatch.dataset.color.replace('#', ''), 16);
+    frameMaterial.color.setHex(state.color);
+  });
+});
+
+// Explode button
+const explodeBtn = document.getElementById('explodeBtn');
+explodeBtn.addEventListener('click', () => {
+  state.exploded = !state.exploded;
+  explodeBtn.classList.toggle('active', state.exploded);
+  explodeTarget = state.exploded ? 1 : 0;
+  updateModeIndicator();
+});
+
+// Labels button
+const labelsBtn = document.getElementById('labelsBtn');
+labelsBtn.addEventListener('click', () => {
+  state.showLabels = !state.showLabels;
+  labelsBtn.classList.toggle('active', state.showLabels);
+  updateModeIndicator();
+});
+
+// Dimensions button
+const dimsBtn = document.getElementById('dimsBtn');
+dimsBtn.addEventListener('click', () => {
+  state.showDimensions = !state.showDimensions;
+  dimsBtn.classList.toggle('active', state.showDimensions);
+  updateLabels();
+  updateModeIndicator();
+});
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click', () => {
+  camera.position.set(0, 0, 5);
+  controls.target.set(0, 0, 0);
+  controls.update();
+  state.viewMode = '3d';
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === '3d'));
+  updateModeIndicator();
+});
+
+// Theme
+const themeBtn = document.getElementById('themeBtn');
+const themeIcon = document.getElementById('themeIcon');
+themeBtn.addEventListener('click', () => {
+  const current = document.body.getAttribute('data-theme');
+  if (current === 'dark') {
+    document.body.removeAttribute('data-theme');
+    scene.background = new THREE.Color(0xeef1f6);
+    floorMat.color.setHex(0xd8dde5);
+    themeIcon.innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+  } else {
+    document.body.setAttribute('data-theme', 'dark');
+    scene.background = new THREE.Color(0x1a1f2e);
+    floorMat.color.setHex(0x2a2f3e);
+    themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+});
+
+// View buttons
+document.querySelectorAll('.view-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.viewMode = btn.dataset.view;
+    setView(btn.dataset.view);
+    updateModeIndicator();
+  });
+});
+
+function setView(view) {
+  const distance = 5;
+  controls.enabled = view === '3d';
+  switch(view) {
+    case 'front':
+      camera.position.set(0, 0, distance);
+      controls.target.set(0, 0, 0);
+      break;
+    case 'side':
+      camera.position.set(distance, 0, 0);
+      controls.target.set(0, 0, 0);
+      break;
+    case 'top':
+      camera.position.set(0, distance, 0.01);
+      controls.target.set(0, 0, 0);
+      break;
+    case '3d':
+      camera.position.set(0, 0, distance);
+      controls.target.set(0, 0, 0);
+      break;
+  }
+  camera.lookAt(controls.target);
+  controls.update();
+}
+
+function updateModeIndicator() {
+  const modeText = document.getElementById('modeText');
+  const modeBadge = document.getElementById('modeBadge');
+  const modes = [];
+  if (state.exploded) modes.push('DESPIECE');
+  if (state.showLabels) modes.push('ETIQUETAS');
+  if (state.showDimensions) modes.push('ACOTADO');
+  modes.push(state.viewMode.toUpperCase());
+
+  modeText.textContent = state.viewMode === '3d' ? 'Vista 3D' :
+                         state.viewMode === 'front' ? 'Vista Frontal' :
+                         state.viewMode === 'side' ? 'Vista Lateral' : 'Vista Superior';
+  modeBadge.textContent = modes.slice(0, 2).join(' · ');
+}
+
+// Keyboard
+canvas.addEventListener('keydown', (e) => {
+  const rotateSpeed = 0.08;
+  const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+  const spherical = new THREE.Spherical().setFromVector3(offset);
+
+  switch(e.key) {
+    case 'ArrowLeft': spherical.theta -= rotateSpeed; e.preventDefault(); break;
+    case 'ArrowRight': spherical.theta += rotateSpeed; e.preventDefault(); break;
+    case 'ArrowUp': spherical.phi = Math.max(0.1, spherical.phi - rotateSpeed); e.preventDefault(); break;
+    case 'ArrowDown': spherical.phi = Math.min(Math.PI - 0.1, spherical.phi + rotateSpeed); e.preventDefault(); break;
+    case 'e': case 'E': explodeBtn.click(); return;
+    case 'l': case 'L': labelsBtn.click(); return;
+    case 'd': case 'D': dimsBtn.click(); return;
+    default: return;
+  }
+  offset.setFromSpherical(spherical);
+  camera.position.copy(controls.target).add(offset);
+  camera.lookAt(controls.target);
+});
+
+// Resize
+window.addEventListener('resize', () => {
+  const w = viewport.clientWidth;
+  const h = viewport.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+
+// ============ ANIMATION LOOP ============
+let frameCount = 0;
+let lastFpsTime = performance.now();
+const fpsCounter = document.getElementById('fpsCounter');
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  updateExplodeAnimation();
+  renderer.render(scene, camera);
+
+  // Update overlays
+  overlaySvg.innerHTML = '';
+  positionLabels();
+  drawDimensionLines();
+  update3DLabels();
+
+  frameCount++;
+  const now = performance.now();
+  if (now - lastFpsTime >= 1000) {
+    fpsCounter.textContent = frameCount + ' FPS';
+    frameCount = 0;
+    lastFpsTime = now;
+  }
+}
+
+// ============ INIT ============
+try {
+  dimsBtn.classList.add('active');
+  buildWindow();
+  updateLabels();
+  updateInfo();
+  updateModeIndicator();
+  animate();
+} catch (err) {
+  console.error('Error al inicializar ALUCALC-3D:', err);
+} finally {
+  // Pase lo que pase, el loader nunca debe quedarse pegado sobre el visor
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 600);
+}
+
+setTimeout(() => canvas.focus(), 700);
+
+console.log('✅ MundoCancel· ALUCALC Despiece Técnico inicializado');
+</script>
+
 </body>
 </html>
